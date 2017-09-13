@@ -1,10 +1,8 @@
 <?php
-namespace JappserBundle\Tests;
+namespace Metronome\Injection;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\Expr;
-use JappserBundle\Auth\API\TokenAuthenticator;
-use JappserBundle\Entity\WebUser;
 use Mockery\MockInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;

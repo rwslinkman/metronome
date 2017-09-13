@@ -1,5 +1,5 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment\ServiceInjector;
+namespace Metronome\Injection;
 
 interface ServiceInjector
 {

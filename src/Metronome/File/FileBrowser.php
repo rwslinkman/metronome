@@ -1,5 +1,5 @@
 <?php
-namespace JappserBundle\Service\Helper;
+namespace Metronome\File;
 
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;

@@ -1,8 +1,8 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment;
+namespace Metronome;
 
-use JappserBundle\Tests\TestEnvironment\Util\TestFile;
-use JappserBundle\Tests\TestEnvironment\Util\TestFileBrowser;
+use Metronome\Util\TestFile;
+use Metronome\Util\TestFileBrowser;
 
 class MetronomeFileSystemBuilder
 {

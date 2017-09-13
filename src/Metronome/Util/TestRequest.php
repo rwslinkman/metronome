@@ -1,6 +1,5 @@
 <?php
-namespace JappserBundle\Tests;
-
+namespace Metronome\Util;
 
 use Symfony\Component\HttpFoundation\Request;
 

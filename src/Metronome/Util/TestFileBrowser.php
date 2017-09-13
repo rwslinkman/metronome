@@ -1,7 +1,7 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment\Util;
+namespace Metronome\Util;
 
-use JappserBundle\Service\Helper\FileBrowser;
+use Metronome\File\FileBrowser;
 
 class TestFileBrowser extends FileBrowser
 {

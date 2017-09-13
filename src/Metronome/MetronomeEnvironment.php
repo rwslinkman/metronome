@@ -1,7 +1,6 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment;
+namespace Metronome;
 
-use JappserBundle\Auth\Artifact\JenkinsArtifactAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -58,12 +57,13 @@ class MetronomeEnvironment
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function postFiles($uri, $fileData) {
-        $headers = array(
-            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_WIE_BENDE_GIJ => JenkinsArtifactAuthenticator::WIE_BENDE_GIJ_JENKINS,
-            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_BUILD_TIMESTAMP => 123243242,
-            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_BUILD_NUMBER => 1,
-            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_JOB_NAME => "TestJob"
-        );
+        $headers = array();
+//        $headers = array(
+//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_WIE_BENDE_GIJ => JenkinsArtifactAuthenticator::WIE_BENDE_GIJ_JENKINS,
+//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_BUILD_TIMESTAMP => 123243242,
+//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_BUILD_NUMBER => 1,
+//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_JOB_NAME => "TestJob"
+//        );
         return $this->postRequest($uri, $fileData, $headers);
     }
 

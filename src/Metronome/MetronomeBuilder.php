@@ -1,13 +1,13 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment;
+namespace Metronome;
 
-use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityRepository;
-use JappserBundle\Tests\MockBuilder;
-use JappserBundle\Tests\TestEnvironment\RepoInjector\RepoInjector;
-use JappserBundle\Tests\TestEnvironment\ServiceInjector\ServiceInjector;
-use JappserBundle\Tests\TestEnvironment\Util\TestFormData;
 use \InvalidArgumentException;
+use JappserBundle\Tests\TestEnvironment\MetronomeEnvironment;
+use Metronome\Injection\MockBuilder;
+use Metronome\Injection\RepoInjector;
+use Metronome\Injection\ServiceInjector;
+use Metronome\Util\TestFormData;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -99,7 +99,7 @@ class MetronomeBuilder
         // Symfony services mocking
         /** @var ServiceInjector $injectedService */
         foreach ($this->injectedServices as $injectedService) {
-            $mock = \Mockery::mock($injectedService->forClass(), $injectedService->inject());
+            $mock = \Mockery::mock($injectedService->serviceClass(), $injectedService->inject());
             $env->injectService($injectedService->serviceName(), $mock);
         }
 
@@ -144,8 +144,8 @@ class MetronomeBuilder
         // TODO Show warning when no repo injected and not internal usage
         /** @var RepoInjector $repo */
         foreach ($this->injectedRepos as $repo) {
-            if($repo->forRepo() === $repoClass) {
-                $repoMock = \Mockery::mock($repo->forClass(), $repo->inject());
+            if($repo->repositoryName() === $repoClass) {
+                $repoMock = \Mockery::mock($repo->repositoryClass(), $repo->inject());
                 break;
             }
         }

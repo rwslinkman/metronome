@@ -1,5 +1,5 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment\RepoInjector;
+namespace Metronome\Injection;
 
 interface RepoInjector
 {

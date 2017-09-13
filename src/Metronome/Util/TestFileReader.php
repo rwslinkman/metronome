@@ -1,8 +1,7 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment\Util;
+namespace Metronome\Util;
 
-
-use JappserBundle\Service\Helper\FileReader;
+use Metronome\File\FileReader;
 
 class TestFileReader extends FileReader
 {

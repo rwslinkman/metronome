@@ -1,5 +1,5 @@
 <?php
-namespace JappserBundle\Tests\TestEnvironment\Util;
+namespace Metronome\Util;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

@@ -1,5 +1,5 @@
 <?php
-namespace JappserBundle\Service\Helper;
+namespace Metronome\File;
 
 /**
  * Class FileReader
