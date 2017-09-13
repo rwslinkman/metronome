@@ -1,0 +1,16 @@
+{
+    "name": "rwslinkman/metronome",
+    "description": "Test utility for Symfony 3 (PHP) applications",
+    "type": "library",
+    "license": "Apache 2",
+    "authors": [
+        {
+            "name": "Rick Slinkman",
+            "email": "rw.slinkman@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
