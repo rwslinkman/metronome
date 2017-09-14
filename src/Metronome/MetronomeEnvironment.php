@@ -51,18 +51,13 @@ class MetronomeEnvironment
     }
 
     /**
+     * TODO Check if all in $headers start with HEADER_PREFIX
      * @param string $uri
      * @param array $fileData
+     * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function postFiles($uri, $fileData) {
-        $headers = array();
-//        $headers = array(
-//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_WIE_BENDE_GIJ => JenkinsArtifactAuthenticator::WIE_BENDE_GIJ_JENKINS,
-//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_BUILD_TIMESTAMP => 123243242,
-//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_BUILD_NUMBER => 1,
-//            self::HEADER_PREFIX.JenkinsArtifactAuthenticator::HEADER_JOB_NAME => "TestJob"
-//        );
+    public function postFiles($uri, $fileData, $headers = array()) {
         return $this->postRequest($uri, $fileData, $headers);
     }
 
