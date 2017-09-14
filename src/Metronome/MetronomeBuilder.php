@@ -4,6 +4,7 @@ namespace Metronome;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
+use Metronome\Injection\MetronomeUser;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\RepoInjector;
 use Metronome\Injection\ServiceInjector;
@@ -11,6 +12,7 @@ use Metronome\Util\TestFormData;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  */
@@ -43,7 +45,7 @@ class MetronomeBuilder
         }
         $this->symfonyClient = $client;
         $this->repository = null;
-        $this->requiresLogin = false;
+        $this->requiresLogin = null;
         $this->injectedServices = array();
         $this->injectedRepos = array();
         $this->shouldFailFormLogin = false;
@@ -60,8 +62,11 @@ class MetronomeBuilder
         array_push($this->injectedRepos, $repoInjector);
     }
 
-    public function requiresLogin() {
-        $this->requiresLogin = true;
+    public function requiresLogin(UserInterface $injectedUser = null) {
+        if($injectedUser == null) {
+            $injectedUser = new MetronomeUser();
+        }
+        $this->requiresLogin = $injectedUser;
     }
 
     public function shouldFailFormLogin() {
@@ -122,8 +127,8 @@ class MetronomeBuilder
         $env->injectService("twig", $twigMock);
 
         // Logged in status mock
-        if($this->requiresLogin) {
-            $mockUP = MockBuilder::createMockUserProvider();
+        if($this->requiresLogin != null) {
+            $mockUP = MockBuilder::createMockUserProvider($this->requiresLogin);
             $env->injectService("app.token_authenticator", $mockUP);
         }
 

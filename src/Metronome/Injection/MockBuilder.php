@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\Expr;
 use Mockery\MockInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -62,13 +63,11 @@ class MockBuilder
     }
 
     /**
-     * TODO Allow for custom user that logs in
-     * TODO Make ROLE mockable
-     * @return AbstractGuardAuthenticator|\Mockery\MockInterface
+     * TODO Make ROLE injectable
+     * @param UserInterface $mockUser
+     * @return MockInterface|AbstractGuardAuthenticator
      */
-    public static function createMockUserProvider() {
-        $mockUser = new MetronomeUser();
-
+    public static function createMockUserProvider(UserInterface $mockUser) {
         $token = new PostAuthenticationGuardToken($mockUser, "dev", array("ROLE_SUPERADMIN"));
 
         $userProviderMock = \Mockery::mock('\Metronome\Injection\MetronomeAuthenticator',
