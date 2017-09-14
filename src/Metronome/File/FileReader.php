@@ -5,7 +5,7 @@ namespace Metronome\File;
  * Class FileReader
  * Wraps a class around the file() php function
  * @codeCoverageIgnore
- * @package JappserBundle\Service\Helper
+ * @package Metronome\File
  */
 class FileReader
 {

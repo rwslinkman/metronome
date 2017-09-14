@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\Expr;
 use Mockery\MockInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Twig_Environment;
@@ -61,14 +62,16 @@ class MockBuilder
     }
 
     /**
-     * @return TokenAuthenticator|\Mockery\MockInterface
+     * TODO Allow for custom user that logs in
+     * TODO Make ROLE mockable
+     * @return AbstractGuardAuthenticator|\Mockery\MockInterface
      */
     public static function createMockUserProvider() {
-        $mockUser = new WebUser();
-        // TODO Make ROLE mockable
+        $mockUser = new MetronomeUser();
+
         $token = new PostAuthenticationGuardToken($mockUser, "dev", array("ROLE_SUPERADMIN"));
 
-        $userProviderMock = \Mockery::mock('\JappserBundle\Auth\API\TokenAuthenticator',
+        $userProviderMock = \Mockery::mock('\Metronome\Injection\MetronomeAuthenticator',
             array(
                 'getUser' => $mockUser,
                 'getCredentials' => (object)array('token' => 'aToken'),
