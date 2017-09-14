@@ -3,6 +3,10 @@ namespace Metronome\Util;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * Class TestFile
+ * @package Metronome\Util
+ */
 class TestFile extends UploadedFile
 {
     private $pathName;

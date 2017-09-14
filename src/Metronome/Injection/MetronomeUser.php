@@ -1,7 +1,6 @@
 <?php
 namespace Metronome\Injection;
 
-
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class MetronomeUser implements UserInterface
@@ -11,6 +10,13 @@ class MetronomeUser implements UserInterface
     private $salt;
     private $roles;
 
+    /**
+     * MetronomeUser constructor.
+     * @param string $username
+     * @param string $password
+     * @param string $salt
+     * @param array $roles
+     */
     public function __construct($username = "", $password = "", $salt = "", $roles = array())
     {
         $this->username = $username;
