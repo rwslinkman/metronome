@@ -8,7 +8,6 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class MetronomeEnvironment
 {
-    const LOGIN_URL = "https://localhost/login";
     const HEADER_PREFIX = "HTTP_";
     private $client;
 

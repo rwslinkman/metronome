@@ -3,7 +3,6 @@ namespace Metronome;
 
 use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
-use JappserBundle\Tests\TestEnvironment\MetronomeEnvironment;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\RepoInjector;
 use Metronome\Injection\ServiceInjector;
@@ -85,6 +84,9 @@ class MetronomeBuilder
         $this->entityManagerLoad = $result;
     }
 
+    /**
+     * @return MetronomeEnvironment
+     */
     public function build() {
         if($this->shouldFailFormLogin && $this->requiresLogin) {
             throw new InvalidArgumentException("Cannot use shouldFailFormLogin() and requiresLogin() simultaneously");
