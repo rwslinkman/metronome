@@ -11,13 +11,8 @@
     ],
     "autoload": {
         "psr-4": {
-          "Metronome\\": "src/"
+          "Metronome\\": "src/Metronome/"
         }
-    },
-    "autoload-dev": {
-      "psr-4": {
-        "Metronome\\": "src/"
-      }
     },
     "require": {
         "php": ">=5.3.0",
