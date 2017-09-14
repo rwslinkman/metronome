@@ -1,6 +1,7 @@
 <?php
 namespace Metronome;
 
+use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
 use Metronome\Injection\MockBuilder;
