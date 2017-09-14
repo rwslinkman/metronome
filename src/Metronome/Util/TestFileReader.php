@@ -3,6 +3,10 @@ namespace Metronome\Util;
 
 use Metronome\File\FileReader;
 
+/**
+ * Class TestFileReader
+ * @package Metronome\Util
+ */
 class TestFileReader extends FileReader
 {
     private $result;

@@ -7,7 +7,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * Class FileBrowser
  * @codeCoverageIgnore
- * @package JappserBundle\Service\Helper
+ * @package Metronome\File
  */
 class FileBrowser
 {

@@ -3,6 +3,10 @@ namespace Metronome\Util;
 
 use Metronome\File\FileBrowser;
 
+/**
+ * Class TestFileBrowser
+ * @package Metronome\Util
+ */
 class TestFileBrowser extends FileBrowser
 {
     private $filesInDir = array();

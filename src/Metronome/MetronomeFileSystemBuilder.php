@@ -3,6 +3,7 @@ namespace Metronome;
 
 use Metronome\Util\TestFile;
 use Metronome\Util\TestFileBrowser;
+use Symfony\Component\Filesystem\Filesystem;
 
 class MetronomeFileSystemBuilder
 {
@@ -18,6 +19,9 @@ class MetronomeFileSystemBuilder
         $this->rootDir = "";
     }
 
+    /**
+     * @return TestFileBrowser
+     */
     public function buildFileBrowser() {
         //
         $files = array();
@@ -38,6 +42,9 @@ class MetronomeFileSystemBuilder
         return $mockFB;
     }
 
+    /**
+     * @return \Mockery\MockInterface|Filesystem
+     */
     public function buildFileSystem() {
         //
         $mockFS = \Mockery::mock('\Symfony\Component\Filesystem\Filesystem', array(

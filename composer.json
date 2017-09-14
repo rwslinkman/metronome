@@ -9,6 +9,11 @@
             "email": "rw.slinkman@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+          "Metronome\\": "src/Metronome/"
+        }
+    },
     "require": {
         "php": ">=5.3.0",
         "doctrine/orm": "^2.5",
