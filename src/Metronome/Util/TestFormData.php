@@ -1,6 +1,10 @@
 <?php
 namespace Metronome\Util;
 
+/**
+ * Class TestFormData
+ * @package Metronome\Util
+ */
 class TestFormData
 {
     /** @var  boolean */

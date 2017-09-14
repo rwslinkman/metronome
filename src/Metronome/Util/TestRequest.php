@@ -3,6 +3,10 @@ namespace Metronome\Util;
 
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class TestRequest
+ * @package Metronome\Util
+ */
 class TestRequest extends Request
 {
     private $mockPath;
