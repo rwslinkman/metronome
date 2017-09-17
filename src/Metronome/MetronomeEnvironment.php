@@ -1,6 +1,7 @@
 <?php
 namespace Metronome;
 
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -31,9 +32,7 @@ class MetronomeEnvironment
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function get($uri) {
-        $this->client->request('GET', $uri);
-        // TODO: Analyze response and warn for errors, flashbag messages, etc.
-        return $this->client->getResponse();
+        return $this->request("GET", $uri);
     }
 
     /**
@@ -47,18 +46,28 @@ class MetronomeEnvironment
             'HTTP_ACCEPT'       => 'application/json',
             'HTTP_X-Requested-With' => 'XMLHttpRequest'
         );
-        return $this->postRequest($uri, array(), $headers, $body);
+        return $this->request("POST", $uri, array(), $headers, $body);
     }
 
     /**
-     * TODO Check if all in $headers start with HEADER_PREFIX
+
      * @param string $uri
      * @param array $fileData
      * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function postFiles($uri, $fileData, $headers = array()) {
-        return $this->postRequest($uri, $fileData, $headers);
+        $this->validateHeaders($headers);
+        return $this->request("POST", $uri, $fileData, $headers);
+    }
+
+    public function putJson($uri, $body) {
+        $headers = array(
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT'       => 'application/json',
+            'HTTP_X-Requested-With' => 'XMLHttpRequest'
+        );
+        return $this->request("PUT", $uri, array(), $headers, $body);
     }
 
     /**
@@ -66,25 +75,6 @@ class MetronomeEnvironment
      */
     public function getFlashBag() {
         return $this->client->getContainer()->get("session")->getFlashBag()->all();
-    }
-
-    /**
-     * @param string $uri
-     * @param array $files
-     * @param array $headers
-     * @param string $body
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    private function postRequest($uri, $files = array(), $headers = array(), $body = null) {
-        // Prepare JSON body
-        $content = null;
-        if($body != null){
-            $content = json_encode($body);
-        }
-
-        $this->client->request("POST", $uri, array(), $files, $headers, $content);
-        // TODO: Analyze response and warn for errors, flashbag messages, etc.
-        return $this->client->getResponse();
     }
 
     /**
@@ -103,5 +93,38 @@ class MetronomeEnvironment
      */
     public function getClient() {
         return $this->client;
+    }
+
+    /**
+     * @param $method
+     * @param string $uri
+     * @param array $files
+     * @param array $headers
+     * @param string $body
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    private function request($method, $uri, $files = array(), $headers = array(), $body = null) {
+        // Prepare JSON body
+        $content = null;
+        if($body != null){
+            $content = json_encode($body);
+        }
+
+        $this->client->request($method, $uri, array(), $files, $headers, $content);
+        // TODO: Analyze response and warn for errors, flashbag messages, etc.
+        return $this->client->getResponse();
+    }
+
+    /**
+     * @param string[] $headers List of headers to validate
+     * @throws InvalidArgumentException In case one of the headers does not start with "HTTP_"
+     */
+    private function validateHeaders($headers) {
+        foreach($headers as $header) {
+            if(substr( $headers, 0, 5 ) !== self::HEADER_PREFIX) {
+                $errorStr = sprintf("Header '%s' does not start with HTTP_", $header);
+                throw new InvalidArgumentException($errorStr);
+            }
+        }
     }
 }
