@@ -121,7 +121,8 @@ class MetronomeEnvironment
      */
     private function validateHeaders($headers) {
         foreach($headers as $header) {
-            if(substr( $headers, 0, 5 ) !== self::HEADER_PREFIX) {
+            // Check each header for valid start characters.
+            if(substr( $header, 0, 5 ) !== self::HEADER_PREFIX) {
                 $errorStr = sprintf("Header '%s' does not start with HTTP_", $header);
                 throw new InvalidArgumentException($errorStr);
             }
