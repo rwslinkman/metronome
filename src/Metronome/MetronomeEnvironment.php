@@ -18,7 +18,7 @@ class MetronomeEnvironment
     }
 
     /**
-     * @param String $serviceName
+     * @param string $serviceName
      * @param mixed $mock
      */
     /* package */ function injectService($serviceName, $mock) {
@@ -28,11 +28,13 @@ class MetronomeEnvironment
     }
 
     /**
-     * @param $uri
+     * @param string $uri
+     * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function get($uri) {
-        return $this->request("GET", $uri);
+    public function get($uri, $headers = array()) {
+        $this->validateHeaders($headers);
+        return $this->request("GET", $uri, array(), $headers);
     }
 
     /**
