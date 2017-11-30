@@ -14,6 +14,7 @@ class TestFile extends UploadedFile
     private $extension;
     private $baseName;
     private $modifiedDate;
+    private $fileSize;
 
     /**
      * TestFile constructor.
@@ -25,14 +26,15 @@ class TestFile extends UploadedFile
      * @param string $baseName
      * @param int $modifiedDate
      */
-    public function __construct($originalName, $mimeType = null, $size = null, $error = null,
+    public function __construct($originalName, $mimeType = null, $size = 0, $error = null,
                                 $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615) {
-        parent::__construct("/path/to/".$originalName, $originalName, $mimeType, $size, $error ?: "test-file", true);
+        parent::__construct("/path/to/".$originalName, $originalName, $mimeType, null, $error ?: "test-file", true);
         $this->pathName = "/path/to/".$originalName;
         $this->mime = $mimeType;
         $this->extension = $extension;
         $this->baseName = $baseName;
         $this->modifiedDate = $modifiedDate;
+        $this->fileSize = $size;
     }
 
     public function getPathname()
@@ -58,7 +60,7 @@ class TestFile extends UploadedFile
         $file['extension']          = $this->extension;
         $file['baseName']           = $this->baseName;
         $file['modifiedDate']       = $this->modifiedDate;
-        $file['size']               = $this->getSize();
+        $file['size']               = $this->fileSize;
         return $file;
     }
 }
