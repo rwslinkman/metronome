@@ -12,7 +12,7 @@
     </php>
 
     <testsuites>
-        <testsuite name="Rick Slinkman Website testsuite">
+        <testsuite name="Metronome testsuite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
