@@ -102,7 +102,8 @@ class MetronomeBuilder
 
         $env = new MetronomeEnvironment($this->symfonyClient);
         // Database / Doctrine mock
-        $env->injectService('doctrine.orm.default_entity_manager', $emMock);
+//        $env->injectService('doctrine.orm.default_entity_manager', $emMock);
+        $env->injectService('doctrine.orm.entity_manager', $emMock);
 
         // Symfony services mocking
         /** @var ServiceInjector $injectedService */
