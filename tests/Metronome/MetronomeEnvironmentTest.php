@@ -1,8 +1,9 @@
 <?php
 namespace Metronome;
 
-
-class MetronomeEnvironmentTest extends \PHPUnit_Framework_TestCase
+class MetronomeEnvironmentTest extends PHPUnit_Framework_TestCase
 {
-    // TODO Create tests
+    public function test_example() {
+        $this->assertTrue(true);
+    }
 }
