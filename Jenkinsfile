@@ -18,7 +18,6 @@ node {
 
     stage('Run tests') {
         // Call build with Ant to create quality results
-        stage 'Build and Test'
         sh 'ant full-build'
     }
 
