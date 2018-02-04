@@ -2,7 +2,7 @@
     "name": "rwslinkman/metronome",
     "description": "Test utility for Symfony 3 (PHP) applications",
     "type": "library",
-    "license": "Apache 2",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "Rick Slinkman",
