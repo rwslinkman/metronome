@@ -63,12 +63,11 @@ class MockBuilder
     }
 
     /**
-     * TODO Make ROLE injectable
      * @param UserInterface $mockUser
      * @return MockInterface|AbstractGuardAuthenticator
      */
     public static function createMockUserProvider(UserInterface $mockUser) {
-        $token = new PostAuthenticationGuardToken($mockUser, "dev", array("ROLE_SUPERADMIN"));
+        $token = new PostAuthenticationGuardToken($mockUser, "dev", $mockUser->getRoles());
 
         $userProviderMock = \Mockery::mock('\Metronome\Injection\MetronomeAuthenticator',
             array(
@@ -116,6 +115,7 @@ class MockBuilder
 
     /**
      * @return MockInterface|Twig_Environment
+     * TODO: Improve this rendering method
      */
     public static function createTwigMock() {
         $html = "Test environment prevented template of being rendered";

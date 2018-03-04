@@ -8,7 +8,6 @@ node {
         if(!env.PATH.contains(localBin)) {
             env.PATH = "${localBin}:${env.PATH}"
         }
-        sh "chmod 777 /tmp/stdout"
     }
 
     stage('Update dependencies') {

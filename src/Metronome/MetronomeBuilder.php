@@ -4,7 +4,7 @@ namespace Metronome;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
-use Metronome\Injection\MetronomeUser;
+use Metronome\Injection\MetronomeLoginData;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\RepoInjector;
 use Metronome\Injection\ServiceInjector;
@@ -12,7 +12,6 @@ use Metronome\Util\TestFormData;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  */
@@ -22,7 +21,7 @@ class MetronomeBuilder
     private $symfonyClient;
     /** @var  EntityRepository */
     private $repository;
-    /** @var  boolean */
+    /** @var MetronomeLoginData */
     private $requiresLogin;
     /** @var ServiceInjector[] */
     private $injectedServices;
@@ -62,11 +61,11 @@ class MetronomeBuilder
         array_push($this->injectedRepos, $repoInjector);
     }
 
-    public function requiresLogin(UserInterface $injectedUser = null) {
-        if($injectedUser == null) {
-            $injectedUser = new MetronomeUser();
+    public function requiresLogin(MetronomeLoginData $injected = null) {
+        if($injected == null) {
+            $injected = MetronomeLoginData::defaultLoginData();
         }
-        $this->requiresLogin = $injectedUser;
+        $this->requiresLogin = $injected;
     }
 
     public function shouldFailFormLogin() {
@@ -102,7 +101,6 @@ class MetronomeBuilder
 
         $env = new MetronomeEnvironment($this->symfonyClient);
         // Database / Doctrine mock
-//        $env->injectService('doctrine.orm.default_entity_manager', $emMock);
         $env->injectService('doctrine.orm.entity_manager', $emMock);
 
         // Symfony services mocking
@@ -129,8 +127,8 @@ class MetronomeBuilder
 
         // Logged in status mock
         if($this->requiresLogin != null) {
-            $mockUP = MockBuilder::createMockUserProvider($this->requiresLogin);
-            $env->injectService("app.token_authenticator", $mockUP);
+            $mockUP = MockBuilder::createMockUserProvider($this->requiresLogin->getUser());
+            $env->injectService($this->requiresLogin->getAuthenticatorService(), $mockUP);
         }
 
         // Login form mock
