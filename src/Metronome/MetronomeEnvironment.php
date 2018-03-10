@@ -76,6 +76,26 @@ class MetronomeEnvironment
         return $this->request("POST", $uri, $fileData, $headers);
     }
 
+    /**
+     * Send POST request to specified $uri with given $formData.
+     * $formData must be of array type, containing an array for each form posted
+     *
+     * Example:[
+     *  myform[firstname]
+     *  myform[lastname]
+     *  otherform[question1]
+     *  otherform[question2]
+     * ]
+     * @param $uri
+     * @param array $formData
+     * @param array $headers
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function postForm($uri, $formData = array(), $headers = array()) {
+        $this->validateHeaders($headers);
+        return $this->request("POST", $uri, $formData, $headers);
+    }
+
     public function putJson($uri, $body)
     {
         $headers = array(
@@ -152,7 +172,7 @@ class MetronomeEnvironment
         foreach ($headers as $headerName => $headerValue) {
             // Check each header for valid start characters.
             if (substr($headerName, 0, 5) !== self::HEADER_PREFIX) {
-                $errorStr = sprintf("Header '%s' does not start with 'HTTP_'", $headerName);
+                $errorStr = sprintf("Header '%s' does not start with '%s'", $headerName, self::HEADER_PREFIX);
                 throw new InvalidArgumentException($errorStr);
             }
         }
