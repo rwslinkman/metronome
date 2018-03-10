@@ -87,13 +87,19 @@ class MetronomeEnvironment
      *  otherform[question2]
      * ]
      * @param $uri
+     * @param $formId string - HTML selector to find the specific form
      * @param array $formData
-     * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function postForm($uri, $formData = array(), $headers = array()) {
-        $this->validateHeaders($headers);
-        return $this->request("POST", $uri, $formData, $headers);
+    public function postForm($uri, $formId, $formData = array()) {
+        $crawler = $this->client->request('GET', $uri);
+        $form = $crawler->filter('#'.$formId)->form();
+        $form->setValues($formData);
+
+        $this->client->setServerParameter("HTTP_X-Requested-With" , "XMLHttpRequest");
+        $this->client->submit($form);
+
+        return $this->client->getResponse();
     }
 
     public function putJson($uri, $body)
