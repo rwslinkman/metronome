@@ -98,7 +98,8 @@ class MockBuilder
             "handleRequest" => null,
             "isSubmitted" => $isSubmitted,
             "getData" => $getData,
-            "createView" => null
+            "createView" => null,
+            "isValid" => $isSubmitted
         ));
         
         $fbMock = \Mockery::mock('\Symfony\Component\Form\FormFactory', array(
@@ -109,12 +110,14 @@ class MockBuilder
 
     public static function createTwigTemplatingMock(){
         $twigMock = \Mockery::mock('\Symfony\Bridge\Twig\TwigEngine', array(
-            "renderResponse" => new Response("")
+            "renderResponse" => new Response(""),
+            "render" => ""
         ));
         return $twigMock;
     }
 
     /**
+     * @deprecated
      * @return MockInterface|Twig_Environment
      * TODO: Improve this rendering method
      */
