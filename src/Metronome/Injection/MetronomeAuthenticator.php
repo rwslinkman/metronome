@@ -183,4 +183,18 @@ class MetronomeAuthenticator extends AbstractGuardAuthenticator
     {
         return false;
     }
+
+    /**
+     * Does the authenticator support the given Request?
+     *
+     * If this returns false, the authenticator will be skipped.
+     *
+     * @param Request $request
+     *
+     * @return bool
+     */
+    public function supports(Request $request)
+    {
+        return true;
+    }
 }
