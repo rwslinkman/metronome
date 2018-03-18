@@ -1,5 +1,5 @@
 <?php
-namespace Metronome\Util;
+namespace Metronome\Injection;
 
 /**
  * Class TestFormData
