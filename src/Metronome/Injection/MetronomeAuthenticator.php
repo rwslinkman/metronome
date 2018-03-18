@@ -195,6 +195,9 @@ class MetronomeAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
+        if ($request->getPathInfo() != '/login' || !$request->isMethod('POST')) {
+            return false;
+        }
         return true;
     }
 }
