@@ -76,7 +76,8 @@ class MockBuilder
                 'onAuthenticationFailure' => (object)array('message' => 'mockErrorMessage'),
                 'checkCredentials' => true,
                 'createAuthenticatedToken' => $token,
-                'onAuthenticationSuccess' => null
+                'onAuthenticationSuccess' => null,
+                'supports' => true,
             ));
         return $userProviderMock;
     }

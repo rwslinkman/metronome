@@ -122,8 +122,9 @@ class MetronomeBuilder
             $env->injectService("templating", $templatingMock);
         }
 
-        $twigMock = MockBuilder::createTwigMock();
-        $env->injectService("twig", $twigMock);
+        // TODO Investigate if this can really be removed
+//        $twigMock = MockBuilder::createTwigMock();
+//        $env->injectService("twig", $twigMock);
 
         // Logged in status mock
         if($this->requiresLogin != null) {
