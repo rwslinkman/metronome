@@ -8,12 +8,15 @@ use Metronome\Injection\MetronomeLoginData;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\RepoInjector;
 use Metronome\Injection\ServiceInjector;
-use Metronome\Util\TestFormData;
+use Metronome\Util\MetronomeFormData;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 
 /**
+ * Class MetronomeBuilder
+ * @package Metronome
+ * @author Rick Slinkman
  */
 class MetronomeBuilder
 {
@@ -30,8 +33,8 @@ class MetronomeBuilder
     /** @var  boolean */
     private $shouldFailFormLogin;
     /** @var  boolean */
-    private $mockTemplatingEngine;
-    /** @var  TestFormData */
+    private $mockSymfonyForms;
+    /** @var  MetronomeFormData */
     private $testFormData;
     //
     private $entityManagerLoadAll;
@@ -48,7 +51,7 @@ class MetronomeBuilder
         $this->injectedServices = array();
         $this->injectedRepos = array();
         $this->shouldFailFormLogin = false;
-        $this->mockTemplatingEngine = false;
+        $this->mockSymfonyForms = false;
         $this->entityManagerLoadAll = null;
         $this->entityManagerLoad = null;
     }
@@ -72,13 +75,9 @@ class MetronomeBuilder
         $this->shouldFailFormLogin = true;
     }
 
-    public function mockTemplatingEngine() {
-        $this->mockTemplatingEngine = true;
-    }
-
-    public function mockSymfonyForms(TestFormData $formData) {
+    public function mockSymfonyForms(MetronomeFormData $formData) {
         $this->testFormData = $formData;
-        $this->mockTemplatingEngine();
+        $this->mockSymfonyForms = true;
     }
 
     public function genericLoadAll($result) {
@@ -111,20 +110,19 @@ class MetronomeBuilder
         }
 
         // Symfony templating engine
-        if($this->mockTemplatingEngine) {
+        if($this->mockSymfonyForms) {
             // Test data or default values
             $mockIsSubmitted = ($this->testFormData == null) ? false : $this->testFormData->isSubmitted();
+            $mockIsValid = ($this->testFormData == null) ? false : $this->testFormData->isValid();
             $mockGetData = ($this->testFormData == null) ? array() : $this->testFormData->getSubmittedData();
 
-            $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockGetData);
+            // TODO This rendering can be improved, it's only used when mocking forms
+            $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData);
             $env->injectService("form.factory", $formMock);
+            // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigTemplatingMock();
             $env->injectService("templating", $templatingMock);
         }
-
-        // TODO Investigate if this can really be removed
-//        $twigMock = MockBuilder::createTwigMock();
-//        $env->injectService("twig", $twigMock);
 
         // Logged in status mock
         if($this->requiresLogin != null) {

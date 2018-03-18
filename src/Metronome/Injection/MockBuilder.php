@@ -93,13 +93,13 @@ class MockBuilder
         return $utilMock;
     }
     
-    public static function createFormBuilderMock($isSubmitted = false, $getData = array()) {
+    public static function createFormBuilderMock($isSubmitted = false, $isValid = false, $getData = array()) {
         $formMock = \Mockery::mock('\Symfony\Component\Form\Form', array(
             "handleRequest" => null,
             "isSubmitted" => $isSubmitted,
             "getData" => $getData,
             "createView" => null,
-            "isValid" => $isSubmitted
+            "isValid" => $isValid
         ));
         
         $fbMock = \Mockery::mock('\Symfony\Component\Form\FormFactory', array(
