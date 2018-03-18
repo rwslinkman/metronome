@@ -115,9 +115,10 @@ class MetronomeBuilder
             $mockIsSubmitted = ($this->testFormData == null) ? false : $this->testFormData->isSubmitted();
             $mockIsValid = ($this->testFormData == null) ? false : $this->testFormData->isValid();
             $mockGetData = ($this->testFormData == null) ? array() : $this->testFormData->getSubmittedData();
+            $mockErrors = ($this->testFormData == null) ? array() : $this->testFormData->getErrors();
 
             // TODO This rendering can be improved, it's only used when mocking forms
-            $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData);
+            $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
             $env->injectService("form.factory", $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigTemplatingMock();

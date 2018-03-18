@@ -3,7 +3,7 @@ namespace Metronome\Injection;
 
 /**
  * Class TestFormData
- * @package Metronome\Util
+ * @package Metronome\Injection
  */
 class MetronomeFormData
 {
@@ -13,11 +13,14 @@ class MetronomeFormData
     private $isValid;
     /** @var  array */
     private $submittedData;
+    /** @var array */
+    private $errors;
 
-    public function __construct($isSubmitted = false, $isValid = false, $data = array()) {
+    public function __construct($isSubmitted = false, $isValid = false, $data = array(), $errors = array()) {
         $this->isSubmitted = $isSubmitted;
         $this->isValid = $isValid;
         $this->submittedData = $data;
+        $this->errors = $errors;
     }
 
     /**
@@ -40,5 +43,12 @@ class MetronomeFormData
      */
     public function getSubmittedData() {
         return $this->submittedData;
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrors() {
+        return $this->errors;
     }
 }
