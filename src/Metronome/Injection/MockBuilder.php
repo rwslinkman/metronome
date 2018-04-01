@@ -2,6 +2,7 @@
 namespace Metronome\Injection;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr;
 use Mockery\MockInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,7 @@ class MockBuilder
      * @param null $clear
      * @param null $load
      * @param null $loadAll
+     * @param null $entityName
      * @return EntityManager|\Mockery\MockInterface
      */
     public static function createMockEntityManager(
@@ -28,7 +30,8 @@ class MockBuilder
         $flush = null,
         $clear = null,
         $load = null,
-        $loadAll = null)
+        $loadAll = null,
+        $entityName = null)
     {
         //
 
@@ -45,6 +48,7 @@ class MockBuilder
             'getUnitOfWork' => self::createMockUnitOfWork($load, $loadAll),
             'createQueryBuilder' => $qbMock,
             'remove' => null,
+            'getClassMetadata' => new ClassMetadata($entityName)
         ));
         return $emMock;
     }

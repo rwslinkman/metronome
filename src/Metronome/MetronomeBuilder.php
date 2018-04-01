@@ -172,4 +172,15 @@ class MetronomeBuilder
         ));
         return $mockRR;
     }
+
+    public function buildManagerRegistryMock($entityClass = null) {
+        //
+        $mockEM = MockBuilder::createMockEntityManager(null, null, null, null,
+            $this->entityManagerLoad, $this->entityManagerLoadAll, $entityClass);
+        //
+        $mockMR = \Mockery::mock('Doctrine\Common\Persistence\ManagerRegistry', array(
+            "getManagerForClass" => $mockEM,
+        ));
+        return $mockMR;
+    }
 }
