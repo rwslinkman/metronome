@@ -2,6 +2,7 @@
 namespace Metronome;
 
 use Doctrine\Common\DataFixtures\ReferenceRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
 use Metronome\Injection\MetronomeFormData;
@@ -173,6 +174,10 @@ class MetronomeBuilder
         return $mockRR;
     }
 
+    /**
+     * @param string $entityClass The name of the Entity to mock
+     * @return ManagerRegistry|MockInterface
+     */
     public function buildManagerRegistryMock($entityClass = null) {
         //
         $mockEM = MockBuilder::createMockEntityManager(null, null, null, null,
