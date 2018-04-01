@@ -11,6 +11,10 @@ use Symfony\Component\Finder\SplFileInfo;
  */
 class FileBrowser
 {
+    const FILE_PROP_RELATIVE_PATH_NAME = 'relativePathName';
+    const FILE_PROP_PATH_NAME = 'pathName';
+    const FILE_PROP_NAME = 'name';
+
     /**
      * @param string $dirName
      * @return array
@@ -33,9 +37,9 @@ class FileBrowser
      */
     private function splToArray(SplFileInfo $fileInfo) {
         $file = array();
-        $file['relativePathName'] = $fileInfo->getRelativePathname();
-        $file['pathName'] = $fileInfo->getPathname();
-        $file['name'] = $fileInfo->getFilename();
+        $file[self::FILE_PROP_RELATIVE_PATH_NAME]   = $fileInfo->getRelativePathname();
+        $file[self::FILE_PROP_PATH_NAME]            = $fileInfo->getPathname();
+        $file[self::FILE_PROP_NAME]                 = $fileInfo->getFilename();
         return $file;
     }
 

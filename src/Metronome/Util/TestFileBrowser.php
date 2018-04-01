@@ -33,9 +33,9 @@ class TestFileBrowser extends FileBrowser
 
     public static function browsableFile($fileName, $relativePathName = "somePathName", $pathName = "someName") {
         $file = array();
-        $file['relativePathName'] = $relativePathName;
-        $file['pathName'] = $pathName;
-        $file['fileName'] = $fileName;
+        $file[parent::FILE_PROP_RELATIVE_PATH_NAME] = $relativePathName;
+        $file[parent::FILE_PROP_PATH_NAME]          = $pathName;
+        $file[parent::FILE_PROP_NAME]               = $fileName;
         return $file;
     }
 }
