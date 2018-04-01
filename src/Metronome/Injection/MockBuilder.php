@@ -110,7 +110,7 @@ class MockBuilder
     }
 
     public static function createTwigTemplatingMock(){
-        $twigMock = \Mockery::mock('\Symfony\Bridge\Twig\TwigEngine', array(
+        $twigMock = \Mockery::mock('\Symfony\Bundle\TwigBundle\TwigEngine', array(
             "renderResponse" => new Response(""),
             "render" => ""
         ));
