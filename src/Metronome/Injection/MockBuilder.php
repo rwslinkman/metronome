@@ -49,7 +49,7 @@ class MockBuilder
             'createQueryBuilder' => $qbMock,
             'remove' => null,
             'getClassMetadata' => new ClassMetadata($entityName)
-        ));
+        ))->makePartial();
         return $emMock;
     }
 
@@ -96,7 +96,7 @@ class MockBuilder
         ));
         return $utilMock;
     }
-    
+
     public static function createFormBuilderMock($isSubmitted = false, $isValid = false, $getData = array(), $errors = array()) {
         $formMock = \Mockery::mock('\Symfony\Component\Form\Form', array(
             "handleRequest" => null,
@@ -106,7 +106,7 @@ class MockBuilder
             "isValid" => $isValid,
             "getErrors" => $errors
         ));
-        
+
         $fbMock = \Mockery::mock('\Symfony\Component\Form\FormFactory', array(
             "create" => $formMock
         ));
