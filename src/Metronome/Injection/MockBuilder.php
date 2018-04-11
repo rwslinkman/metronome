@@ -34,6 +34,9 @@ class MockBuilder
         $entityName = null)
     {
         //
+        $connMock = \Mockery::mock('\Doctrine\DBAL\Connection', array(
+            'exec' => null
+        ));
 
         $qbMock = \Mockery::mock('\Doctrine\ORM\QueryBuilder', array(
             'expr' => new Expr(),
@@ -48,8 +51,9 @@ class MockBuilder
             'getUnitOfWork' => self::createMockUnitOfWork($load, $loadAll),
             'createQueryBuilder' => $qbMock,
             'remove' => null,
-            'getClassMetadata' => new ClassMetadata($entityName)
-        ))->makePartial();
+            'getClassMetadata' => new ClassMetadata($entityName),
+            'getConnection' => $connMock
+        ));
         return $emMock;
     }
 
