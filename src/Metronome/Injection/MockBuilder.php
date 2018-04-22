@@ -110,9 +110,13 @@ class MockBuilder
             "isValid" => $isValid,
             "getErrors" => $errors
         ));
+        $builderMock = \Mockery::mock('\Symfony\Component\Form\FormBuilderInterface', array(
+            'getForm' => $formMock
+        ));
 
         $fbMock = \Mockery::mock('\Symfony\Component\Form\FormFactory', array(
-            "create" => $formMock
+            "create" => $formMock,
+            "createNamedBuilder" => $builderMock
         ));
         return $fbMock;
     }
