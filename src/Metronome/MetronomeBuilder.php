@@ -132,6 +132,9 @@ class MetronomeBuilder
         if($this->loginData != null) {
             $mockUser = $this->loginData->getUser();
             $token = new PostAuthenticationGuardToken($mockUser, "dev", $mockUser->getRoles());
+            foreach ($this->loginData->getTokenAttributes() as $attribute => $value) {
+                $token->setAttribute($attribute, $value);
+            }
 
             $mockUP = MockBuilder::createMockUserProvider($token);
             $mockTokenStorage = MockBuilder::createTokenStorageMock($token);

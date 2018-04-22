@@ -12,6 +12,7 @@ class MetronomeLoginData
 {
     private $user;
     private $authenticatorService;
+    private $attributes;
 
     /**
      * MetronomeLoginData constructor.
@@ -22,6 +23,7 @@ class MetronomeLoginData
     {
         $this->user = $user;
         $this->authenticatorService = $authenticatorService;
+        $this->attributes = array();
     }
 
     public static function defaultLoginData() {
@@ -58,5 +60,27 @@ class MetronomeLoginData
     public function setAuthenticatorService($authenticatorService)
     {
         $this->authenticatorService = $authenticatorService;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTokenAttributes() {
+        return $this->attributes;
+    }
+
+    /**
+     * @param $attributes
+     */
+    public function setTokenAttributes($attributes) {
+        $this->attributes = $attributes;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function addTokenAttribute($name, $value) {
+        $this->attributes[$name] = $value;
     }
 }
