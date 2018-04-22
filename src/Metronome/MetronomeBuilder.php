@@ -103,7 +103,7 @@ class MetronomeBuilder
 
         $env = new MetronomeEnvironment($this->symfonyClient);
         // Database / Doctrine mock
-        $env->injectService('doctrine.orm.entity_manager', $emMock);
+        $env->injectService(ServiceEnum::ENTITY_MANAGER, $emMock);
 
         // Symfony services mocking
         /** @var ServiceInjector $injectedService */
@@ -122,10 +122,10 @@ class MetronomeBuilder
 
             // TODO This rendering can be improved, it's only used when mocking forms
             $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
-            $env->injectService("form.factory", $formMock);
+            $env->injectService(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigTemplatingMock();
-            $env->injectService("templating", $templatingMock);
+            $env->injectService(ServiceEnum::TEMPLATING, $templatingMock);
         }
 
         // Logged in status mock

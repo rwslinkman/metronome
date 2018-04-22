@@ -169,7 +169,8 @@ class MockBuilder
 
     public static function createTokenStorageMock(PostAuthenticationGuardToken $token) {
         $storageMock = \Mockery::mock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage', array(
-            'getToken' => $token
+            'getToken' => $token,
+            'setToken' => null
         ));
         return $storageMock;
     }
