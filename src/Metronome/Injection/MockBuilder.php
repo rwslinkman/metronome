@@ -71,15 +71,13 @@ class MockBuilder
     }
 
     /**
-     * @param UserInterface $mockUser
+     * @param PostAuthenticationGuardToken $token
      * @return MockInterface|AbstractGuardAuthenticator
      */
-    public static function createMockUserProvider(UserInterface $mockUser) {
-        $token = new PostAuthenticationGuardToken($mockUser, "dev", $mockUser->getRoles());
-
+    public static function createMockUserProvider(PostAuthenticationGuardToken $token) {
         $userProviderMock = \Mockery::mock('\Metronome\Injection\MetronomeAuthenticator',
             array(
-                'getUser' => $mockUser,
+                'getUser' => $token->getUser(),
                 'getCredentials' => (object)array('token' => 'aToken'),
                 'onAuthenticationFailure' => (object)array('message' => 'mockErrorMessage'),
                 'checkCredentials' => true,
@@ -167,5 +165,12 @@ class MockBuilder
             "mkdir" => null,
         ));
         return $mockFS;
+    }
+
+    public static function createTokenStorageMock(PostAuthenticationGuardToken $token) {
+        $storageMock = \Mockery::mock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage', array(
+            'getToken' => $token
+        ));
+        return $storageMock;
     }
 }
