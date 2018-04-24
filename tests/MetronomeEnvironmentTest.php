@@ -2,16 +2,13 @@
 namespace Metronome\Tests;
 
 use Metronome\MetronomeEnvironment;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Metronome\Tests\Util\SymfonyClient;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class MetronomeEnvironmentTest extends WebTestCase
 {
     public function test_example() {
-        /** @var Client $clientMock */
-        $clientMock = \Mockery::mock('\Symfony\Bundle\FrameworkBundle\Client', array(
-            'getContainer' => array()
-        ));
+        $clientMock = SymfonyClient::mock();
         $env = new MetronomeEnvironment($clientMock);
         $this->assertNotNull($env);
     }

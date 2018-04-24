@@ -5,7 +5,7 @@ use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
-use Metronome\Injection\MetronomeFormData;
+use Metronome\Form\MetronomeFormData;
 use Metronome\Injection\MetronomeLoginData;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\RepoInjector;
