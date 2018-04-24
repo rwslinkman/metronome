@@ -10,7 +10,8 @@ abstract class SymfonyClient
      */
     public static function mock() {
         $clientMock = \Mockery::mock('\Symfony\Bundle\FrameworkBundle\Client', array(
-            'getContainer' => array()
+            'getContainer' => array(),
+            'setServerParameter' => null
         ));
         return $clientMock;
     }

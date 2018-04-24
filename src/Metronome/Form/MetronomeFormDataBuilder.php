@@ -1,6 +1,5 @@
 <?php
 namespace Metronome\Form;
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormError;
 
 /**
@@ -9,7 +8,6 @@ use Symfony\Component\Form\FormError;
  */
 class MetronomeFormDataBuilder
 {
-    private $formType;
     private $isValid;
     private $formData;
     private $errors;
@@ -26,17 +24,12 @@ class MetronomeFormDataBuilder
         return $this;
     }
 
-    public function formData(AbstractType $formType, $field, $submittedValue) {
-        $formName = $formType->getBlockPrefix();
-        if(!array_key_exists($formName, $this->formData)) {
-            $this->formData[$formName] = array();
+    public function formData($field, $submittedValue) {
+        if(!array_key_exists($field, $this->formData)) {
+            $this->formData[$field] = "";
         }
 
-        if(!array_key_exists($field, $this->formData[$formName])) {
-            $this->formData[$formName][$field] = "";
-        }
-
-        $this->formData[$formName][$field] = $submittedValue;
+        $this->formData[$field] = $submittedValue;
         return $this;
     }
 
