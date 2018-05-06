@@ -10,6 +10,7 @@ Using the `MetronomeBuilder` you can:
 - Inject `MetronomeLoginData` to bypass your `GuardAuthenticator` protection
 - Mock `Symfony Forms`  using the `MetronomeFormDataBuilder` and `MetronomeEntityFormDataBuilder`
 - Make use of Symfony's `Crawler` to see if your HTML is properly rendered
+- Verify the contents of the Symfony `FlashBag`
 
 ## Installing Metronome
 You can install Metronome using `composer` to get the package from Packagist.
@@ -25,7 +26,7 @@ For bleeding edge development, point to the `dev-develop` or `dev-master` versio
 ## Testing a Controller
 
 Setup a `MetronomeEnvironment` using the `MetronomeBuilder`.   
-The most basic test returns a `Response` from `Symfony\HttpFoundation`.
+The most basic test returns a `Response` from `Symfony\HttpFoundation`.   
 Make sure your test extents `WebTestCase` to make use of Symfony's `Client` for HTTP requests.   
 
 
@@ -165,13 +166,68 @@ class ProductRepoInjector implements RepoInjector {
 ```
 
 ## Testing Fixtures
-Documentation coming soon
+Fixtures are part of the `Doctrine FixtureBundle`.   
+Metronome can be used to verify some of the `Fixture` behaviour.
+
+```php
+class MyFixtureTest extends \PHPUnit_Framework_TestCase
+{
+    public function test_givenFixture_whenLoad_shouldAlwaysPersist() {
+        $envBuilder = new MetronomeBuilder();
+        $mockEm = $envBuilder->buildEntityManager();
+
+        $fixture = new MyFixture();
+        $fixture->load($mockEm);
+
+        $mockEm->shouldHaveReceived("flush");
+    }
+}
+```
 
 ## Bypassing the Guard authentication system
-Documentation coming soon
+When testing Controllers, you can bypass your `GuardAuthenticator` by injecting `MetronomeLoginData` into the environment builder.   
+According to the Symfony documentation, the authenticator is defined in your `services.yaml`.   
+This service identifier is used when creating `MetronomeLoginData`.
+Use this to bypass the firewall configured in `security.yaml` during tests.
+
+Using the `requiresLogin` function is not mandatory. If you want to test your firewall, omit the call.
+
+```php
+class AdminControllerTest extends WebTestCase
+{
+    /** @var MetronomeBuilder */
+    private $testEnvBuilder;
+    /** @var */ MetronomeLoginData */
+    private $loginData;
+    
+    public function setUp() {
+        $this->testEnvBuilder = new MetronomeBuilder(static::createClient());
+        
+        $myUser = new MyUser(); // implements UserInterface
+        $this->loginData = new MetronomeLoginData($myUser, "rwslinkman.my_authenticator");
+    }
+    
+    public function test_givenApp_whenGetIndex_andEmptyProductList_thenShouldReturnOK() {
+        // Add this line to actually use the login data. 
+        $this->testEnvBulder->requiresLogin($loginData);
+        
+        /** @var MetronomeEnvironment */
+        $testEnv = $this->testEnvBuilder->build();
+
+        /** @var Response */
+        $result = $testEnv->get("/admin"); // A route that is protected by the firewall in security.yaml
+        
+        $this->assertEquals(200, $result->getStatusCode());
+    }
+}
+```
+
 
 ## Testing forms in your Controllers
 Documentation coming soon
 
 ## Using the Symfony Crawler
+Documentation coming soon
+
+## Verifying FlashBag data
 Documentation coming soon
