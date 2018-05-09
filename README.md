@@ -224,10 +224,81 @@ class AdminControllerTest extends WebTestCase
 
 
 ## Testing forms in your Controllers
-Documentation coming soon
+Most Symfony websites have forms in their Controllers, which can easily be tested with Metronome.   
+Metronome provides 2 builders, that build a `MetronomeFormData` object.   
+This data can be injected into the `MetronomeBuilder` to mock a form.
+
+If you provide an instance of the object being modified to the Symfony FormBuilder, it is directly updated when submitting a valid form.   
+You can mock this updated object by using the `MetronomeEntityFormDataBuilder`.
+```php
+$entity = new MyEntity();
+$entityFormBuilder = new MetronomeEntityFormDataBuilder();
+$entityFormBuilder
+    ->formData($doctrineEntity)
+    ->isValid(true);
+$formData = $$entityFormBuilder->build();
+```
+
+If you have simpler forms, where you directly use the input data, you can make use of the `MetronomeFormDataBuilder`.   
+It allows to directly inject values into the form fields.   
+```php
+// Simple forms
+$formBuilder = new MetronomeFormDataBuilder();
+$formBuilder
+    ->isValid(true)
+    ->formData("form_field_address", "some address")
+    ->formData("form_field_zipcode", "123456");
+$formData = $formBuilder->build();
+```
+
+Using the built form data is done easily by injecting it into the `MetronomeBuilder`.
+```php
+$envBuilder = new MetronomeBuilder(static::createClient());
+$envBuilder->mockSymfonyForms($formData);
+
+$testEnv = $this->envBuilder->build();
+$testEnv->post("/register");
+```
+
 
 ## Using the Symfony Crawler
-Documentation coming soon
+After performing a request with the `MetronomeEnvironment`, you can crawl the result using `getLatestCrawler`.   
+Using the crawler, you can find specific content in the response.   
+This crawler updates with every request you make.   
+It directly returns the Symfony Crawler; please refer its documentation for details.   
+
+
+```php
+public function test_givenLoggedIn_whenGetLogsDashboard_thenShouldFindDashboard() {
+    $testEnv = $this->testEnvBuilder->build();
+
+    $testEnv->get("/admin/logs");
+
+    $crawler = $testEnv->getLatestCrawler();
+    $nameFilterResult = $crawler
+        ->filter('html:contains("Dashboard")')
+        ->count();
+    $this->assertGreaterThan(0, $nameFilterResult);
+}
+```
+
+Please note that this example uses a CSS selector, which requires the `symfony/css-selector` dependency.
 
 ## Verifying FlashBag data
-Documentation coming soon
+The `FlashBag` in the user's session can be a convenient tool for your website.   
+Metronome allows you to access the `FlashBag` through the `MetronomeEnvironment`.   
+This can help you verify the outcome of your GET or POST request even better.   
+
+In the example below, assume that the page has no log messages to show and reports this in a flash message.
+```php
+$testEnvBuilder = new MetronomeBuilder(static::createClient());
+$testEnv = $testEnvBuilder->build();
+
+$testEnv->get("/admin/logs");
+
+$flash = $testEnv->getFlashBag();
+$this->assertNotEmpty($flash);
+```
+
+The `getFlashBag` function returns an associative array, with an entry for every key.   
+Each key entry is also an array, containing the flash messsages associated to that key.
