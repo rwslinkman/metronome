@@ -4,15 +4,15 @@ namespace Metronome\Util;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class TestRequest
+ * Class RequestStub
  * @package Metronome\Util
  */
-class TestRequest extends Request
+class RequestStub extends Request
 {
     private $mockPath;
 
     /**
-     * TestRequest constructor.
+     * RequestStub constructor.
      * @param string $path
      * @param array $headers
      */
