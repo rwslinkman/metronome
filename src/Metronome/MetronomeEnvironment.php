@@ -39,6 +39,7 @@ class MetronomeEnvironment
     }
 
     /**
+     * Sends a GET request to the MetronomeEnvironment to test your application
      * @param string $uri
      * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
@@ -47,6 +48,17 @@ class MetronomeEnvironment
     {
         $this->validateHeaders($headers);
         return $this->request("GET", $uri, array(), $headers);
+    }
+
+    /**
+     * Sends a POST request to the MetronomeEnvironment to test your application
+     * @param string $uri
+     * @param array $headers
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function post($uri, $headers = array()) {
+        $this->validateHeaders($headers);
+        return $this->request("POST", $uri, array(), $headers);
     }
 
     /**

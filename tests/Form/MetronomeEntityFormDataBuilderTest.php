@@ -3,6 +3,7 @@ namespace Metronome\Tests\Form;
 
 use Metronome\Form\MetronomeEntityFormDataBuilder;
 use Metronome\Form\MetronomeFormData;
+use Metronome\Injection\MetronomeUser;
 use Metronome\Tests\Util\TestEntity;
 use Symfony\Component\Form\FormError;
 
@@ -126,5 +127,20 @@ class MetronomeEntityFormDataBuilderTest extends \PHPUnit_Framework_TestCase
         $errors = $result->getErrors();
         $error = $errors["not_blank"];
         $this->assertTrue($error instanceof FormError);
+    }
+
+    public function test_givenBuilder_whenIsValid_thenShouldReturnThis() {
+        $result = $this->dataBuilder->isValid(true);
+        $this->assertTrue($result instanceof MetronomeEntityFormDataBuilder);
+    }
+
+    public function test_givenBuilder_whenFormData_thenShouldReturnThis() {
+        $result = $this->dataBuilder->formData(new MetronomeUser());
+        $this->assertTrue($result instanceof MetronomeEntityFormDataBuilder);
+    }
+
+    public function test_givenBuilder_whenError_thenShouldReturnThis() {
+        $result = $this->dataBuilder->error("someError", new FormError("error"));
+        $this->assertTrue($result instanceof MetronomeEntityFormDataBuilder);
     }
 }

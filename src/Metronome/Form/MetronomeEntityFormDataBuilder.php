@@ -24,13 +24,13 @@ class MetronomeEntityFormDataBuilder
 
     public function formData($entity) {
         $this->formData = $entity;
+        return $this;
     }
 
     public function error($errorName, FormError $error) {
         if(!array_key_exists($errorName, $this->errors)) {
             $this->errors[$errorName] = "";
         }
-
         $this->errors[$errorName] = $error;
         return $this;
     }
