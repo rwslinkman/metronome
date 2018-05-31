@@ -1,5 +1,5 @@
 <?php
-namespace Metronome\Util;
+namespace Metronome\File;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
