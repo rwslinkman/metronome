@@ -4,9 +4,10 @@ namespace Metronome\Injection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr;
+use Metronome\Form\MetronomeFormData;
 use Mockery\MockInterface;
+use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -117,6 +118,41 @@ class MockBuilder
             "createNamedBuilder" => $builderMock
         ));
         return $fbMock;
+    }
+
+    /**
+     * @param $injectedForms
+     * @return FormFactory|MockInterface
+     */
+    public static function createFormFactoryMock($injectedForms) {
+        $mockForms = array();
+        /** @var MetronomeFormData $injectedForm */
+        foreach($injectedForms as $injectedForm) {
+            $mockForm = self::createFormMock($injectedForm->isValid(), $injectedForm->getSubmittedData(), $injectedForm->getErrors());
+            array_push($mockForms, $mockForm);
+        }
+
+        $builderMock = \Mockery::mock('\Symfony\Component\Form\FormBuilderInterface', array(
+            'getForm' => $mockForms
+        ));
+
+        $ffMock = \Mockery::mock(FormFactory::class, array(
+            "create" => $mockForms,
+            "createNamedBuilder" => $builderMock
+        ));
+        return $ffMock;
+    }
+
+    private static function createFormMock($isValid, $getData, $errors) {
+        $formMock = \Mockery::mock('\Symfony\Component\Form\Form', array(
+            "handleRequest" => null,
+            "isSubmitted" => true,
+            "getData" => $getData,
+            "createView" => null,
+            "isValid" => $isValid,
+            "getErrors" => $errors
+        ));
+        return $formMock;
     }
 
     public static function createTwigTemplatingMock(){

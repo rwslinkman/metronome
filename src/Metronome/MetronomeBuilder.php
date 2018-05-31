@@ -39,6 +39,8 @@ class MetronomeBuilder
     private $mockSymfonyForms;
     /** @var  MetronomeFormData */
     private $testFormData;
+    /** @var array|MetronomeFormData[] */
+    private $injectedForms;
     //
     private $entityManagerLoadAll;
     private $entityManagerLoad;
@@ -53,6 +55,7 @@ class MetronomeBuilder
         $this->loginData = null;
         $this->injectedServices = array();
         $this->injectedRepos = array();
+        $this->injectedForms = array();
         $this->shouldFailFormLogin = false;
         $this->mockSymfonyForms = false;
         $this->entityManagerLoadAll = null;
@@ -78,6 +81,10 @@ class MetronomeBuilder
         $this->shouldFailFormLogin = true;
     }
 
+    public function injectForm(MetronomeFormData $formData) {
+        array_push($this->injectedForms, $formData);
+    }
+
     public function mockSymfonyForms(MetronomeFormData $formData) {
         $this->testFormData = $formData;
         $this->mockSymfonyForms = true;
@@ -97,6 +104,9 @@ class MetronomeBuilder
     public function build() {
         if($this->shouldFailFormLogin && $this->loginData) {
             throw new InvalidArgumentException("Cannot use shouldFailFormLogin() and requiresLogin() simultaneously");
+        }
+        if(!empty($this->injectedForms) && $this->mockSymfonyForms) {
+            throw new InvalidArgumentException("Cannot use injectForm() and mockSymfonyForms() simutaneously");
         }
 
         $emMock = $this->buildEntityManager(null);
@@ -122,6 +132,15 @@ class MetronomeBuilder
 
             // TODO This rendering can be improved, it's only used when mocking forms
             $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
+            $env->injectService(ServiceEnum::FORM_FACTORY, $formMock);
+            // TODO This mock can be removed when FormView is succesfully mocked
+            $templatingMock = MockBuilder::createTwigTemplatingMock();
+            $env->injectService(ServiceEnum::TEMPLATING, $templatingMock);
+        }
+
+        if(!empty($this->injectedForms)) {
+            $formMock = MockBuilder::createFormFactoryMock($this->injectedForms);
+            // TODO This rendering can be improved, it's only used when mocking forms
             $env->injectService(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigTemplatingMock();
