@@ -1,7 +1,7 @@
 <?php
 namespace Metronome;
 
-use Metronome\Util\TestFile;
+use Metronome\Util\MetronomeTestFile;
 use Metronome\Util\TestFileBrowser;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -25,14 +25,14 @@ class MetronomeFileSystemBuilder
     public function buildFileBrowser() {
         //
         $files = array();
-        /** @var TestFile $f */
+        /** @var MetronomeTestFile $f */
         foreach($this->filesInDir as $f) {
             array_push($files, $f->toBrowsable());
         }
 
         $dirs = array();
         foreach($this->dirNames as $d) {
-            $f = new TestFile($d);
+            $f = new MetronomeTestFile($d);
             array_push($dirs, $f->toBrowsable());
         }
 
@@ -73,7 +73,7 @@ class MetronomeFileSystemBuilder
         return $this->rootDir;
     }
 
-    public function addBrowsableFile(TestFile $testFile)
+    public function addBrowsableFile(MetronomeTestFile $testFile)
     {
         array_push($this->filesInDir, $testFile);
     }

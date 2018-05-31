@@ -4,10 +4,10 @@ namespace Metronome\Util;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * Class TestFile
+ * Class MetronomeTestFile
  * @package Metronome\Util
  */
-class TestFile extends UploadedFile
+class MetronomeTestFile extends UploadedFile
 {
     private $pathName;
     private $mime;
@@ -17,7 +17,7 @@ class TestFile extends UploadedFile
     private $fileSize;
 
     /**
-     * TestFile constructor.
+     * MetronomeTestFile constructor.
      * @param string $originalName
      * @param string $mimeType
      * @param int $size
@@ -28,7 +28,7 @@ class TestFile extends UploadedFile
      */
     public function __construct($originalName, $mimeType = null, $size = 0, $error = null,
                                 $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615) {
-        parent::__construct("/path/to/".$originalName, $originalName, $mimeType, null, $error ?: "test-file", true);
+        parent::__construct("/path/to/".$originalName, $originalName, $mimeType, $size, UPLOAD_ERR_NO_FILE, true);
         $this->pathName = "/path/to/".$originalName;
         $this->mime = $mimeType;
         $this->extension = $extension;
