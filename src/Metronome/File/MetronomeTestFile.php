@@ -27,8 +27,9 @@ class MetronomeTestFile extends UploadedFile
      * @param int $modifiedDate
      */
     public function __construct($originalName, $mimeType = null, $size = 0, $error = null,
-                                $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615) {
-        parent::__construct("/path/to/".$originalName, $originalName, $mimeType, $size, UPLOAD_ERR_NO_FILE, true);
+                                $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615)
+    {
+        parent::__construct("/path/to/".$originalName, $originalName, $mimeType, UPLOAD_ERR_NO_FILE, true);
         $this->pathName = "/path/to/".$originalName;
         $this->mime = $mimeType;
         $this->extension = $extension;
