@@ -254,12 +254,17 @@ $formData = $formBuilder->build();
 Using the built form data is done easily by injecting it into the `MetronomeBuilder`.
 ```php
 $envBuilder = new MetronomeBuilder(static::createClient());
-$envBuilder->mockSymfonyForms($formData);
+$envBuilder->injectForm($formData);
 
 $testEnv = $this->envBuilder->build();
 $testEnv->post("/register");
 ```
 
+You can use `injectForm` multiple times.  
+The `FormFactory` mock will return the forms in the order they were injected.  
+There are cases where you want to write a test specified to the second form.
+To skip the first form, you can inject `MetronomeNonSubmittedForm` or `MetronomeInvalidForm` before your actual `MetronomeFormData`. 
+ 
 
 ## Using the Symfony Crawler
 After performing a request with the `MetronomeEnvironment`, you can crawl the result using `getLatestCrawler`.   

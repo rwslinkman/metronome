@@ -100,6 +100,14 @@ class MockBuilder
         return $utilMock;
     }
 
+    /**
+     * @deprecated
+     * @param bool $isSubmitted
+     * @param bool $isValid
+     * @param array $getData
+     * @param array $errors
+     * @return MockInterface
+     */
     public static function createFormBuilderMock($isSubmitted = false, $isValid = false, $getData = array(), $errors = array()) {
         $formMock = \Mockery::mock('\Symfony\Component\Form\Form', array(
             "handleRequest" => null,

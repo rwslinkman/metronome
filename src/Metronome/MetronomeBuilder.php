@@ -13,6 +13,7 @@ use Metronome\Injection\ServiceInjector;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
@@ -34,9 +35,17 @@ class MetronomeBuilder
     private $injectedServices;
     /** @var RepoInjector[] */
     private $injectedRepos;
-    /** @var  boolean */
+    /**
+     * @var  boolean
+     * @deprecated
+     */
     private $shouldFailFormLogin;
-    /** @var  boolean */
+    /** @var AuthenticationException */
+    private $authException;
+    /**
+     * @var  boolean
+     * @deprecated
+     */
     private $mockSymfonyForms;
     /** @var  MetronomeFormData */
     private $testFormData;
@@ -58,6 +67,7 @@ class MetronomeBuilder
         $this->injectedRepos = array();
         $this->injectedForms = array();
         $this->shouldFailFormLogin = false;
+        $this->authException = null;
         $this->mockSymfonyForms = false;
         $this->entityManagerLoadAll = null;
         $this->entityManagerLoad = null;
@@ -78,10 +88,27 @@ class MetronomeBuilder
         $this->loginData = $injected;
     }
 
+    /**
+     * Sets an error message for then authentication security service.
+     * Use this when you want to test your login form.
+     * @param string $errorMessage
+     */
+    public function injectAuthenticationError($errorMessage = "Invalid credentials") {
+        $this->authException = new CustomUserMessageAuthenticationException($errorMessage);
+    }
+
+    /**
+     * @deprecated use MetronomeBuilder->injectAuthenticationError();
+     */
     public function shouldFailFormLogin() {
         $this->shouldFailFormLogin = true;
     }
 
+    /**
+     * Allows to inject mocked form to use in your Controller tests
+     * When calling this multiple times with different MetronomeFormData, they will be returned in the order they were injected.
+     * @param MetronomeFormData $formData
+     */
     public function injectForm(MetronomeFormData $formData) {
         array_push($this->injectedForms, $formData);
     }
@@ -109,6 +136,9 @@ class MetronomeBuilder
     public function build() {
         if($this->shouldFailFormLogin && $this->loginData) {
             throw new InvalidArgumentException("Cannot use shouldFailFormLogin() and requiresLogin() simultaneously");
+        }
+        if($this->authException && $this->loginData) {
+            throw new InvalidArgumentException("Cannot use injectAuthenticationError() and requiresLogin() simultaneously");
         }
         if(!empty($this->injectedForms) && $this->mockSymfonyForms) {
             throw new InvalidArgumentException("Cannot use injectForm() and mockSymfonyForms() simutaneously");
@@ -168,9 +198,11 @@ class MetronomeBuilder
         }
 
         // Login form mock
-        if($this->shouldFailFormLogin) {
-            $loginError = new CustomUserMessageAuthenticationException("Invalid Credentials");
-            $authMock = MockBuilder::createAuthUtilsMock($loginError);
+        if($this->shouldFailFormLogin || ($this->authException != null)) {
+            if($this->authException == null) {
+                $this->authException = new CustomUserMessageAuthenticationException("Invalid Credentials");
+            }
+            $authMock = MockBuilder::createAuthUtilsMock($this->authException);
             $env->injectService(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
         }
 
