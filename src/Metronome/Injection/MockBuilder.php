@@ -133,7 +133,7 @@ class MockBuilder
         }
 
         $builderMock = \Mockery::mock('\Symfony\Component\Form\FormBuilderInterface', array(
-            'getForm' => $mockForms
+            'getForm' => $mockForms[0]
         ));
 
         $ffMock = \Mockery::mock(FormFactory::class, array(
