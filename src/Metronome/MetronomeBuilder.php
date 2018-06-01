@@ -18,6 +18,7 @@ use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 /**
  * Class MetronomeBuilder
+ * Helps you set-up a multitude of mocks to test your Symfony application.
  * @package Metronome
  * @author Rick Slinkman
  */
@@ -85,6 +86,10 @@ class MetronomeBuilder
         array_push($this->injectedForms, $formData);
     }
 
+    /**
+     * @deprecated Replaced by MetronomeBuilder->injectForm() that can handle multiple forms in 1 controller
+     * @param MetronomeFormData $formData
+     */
     public function mockSymfonyForms(MetronomeFormData $formData) {
         $this->testFormData = $formData;
         $this->mockSymfonyForms = true;
