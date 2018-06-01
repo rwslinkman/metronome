@@ -137,9 +137,11 @@ class MockBuilder
         ));
 
         $ffMock = \Mockery::mock(FormFactory::class, array(
-            "create" => $mockForms,
             "createNamedBuilder" => $builderMock
         ));
+        foreach($mockForms as $mf) {
+            $ffMock->allows("create")->andReturn($mf);
+        }
         return $ffMock;
     }
 
