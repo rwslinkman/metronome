@@ -15,6 +15,7 @@ class MetronomeTestFile extends UploadedFile
     private $baseName;
     private $modifiedDate;
     private $fileSize;
+    private $movable;
 
     /**
      * MetronomeTestFile constructor.
@@ -25,9 +26,10 @@ class MetronomeTestFile extends UploadedFile
      * @param string $extension
      * @param string $baseName
      * @param int $modifiedDate
+     * @param bool $movable
      */
     public function __construct($originalName, $mimeType = null, $size = 0, $error = null,
-                                $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615)
+                                $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615, $movable = true)
     {
         parent::__construct("/path/to/".$originalName, $originalName, $mimeType, UPLOAD_ERR_NO_FILE, true);
         $this->pathName = "/path/to/".$originalName;
@@ -36,6 +38,7 @@ class MetronomeTestFile extends UploadedFile
         $this->baseName = $baseName;
         $this->modifiedDate = $modifiedDate;
         $this->fileSize = $size;
+        $this->movable = $movable;
     }
 
     public function getPathname()
@@ -50,6 +53,9 @@ class MetronomeTestFile extends UploadedFile
 
     public function move($directory, $name = null)
     {
+        if($this->movable) {
+            return $this;
+        }
         return null;
     }
 
