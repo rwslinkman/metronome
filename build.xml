@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="APCT Boodschappen Backoffice" default="full-build">
+<project name="Metronome - Symfony Test Utility" default="full-build">
 
     <!-- Windows machines -->
     <!--<property name="pdepend" value="${basedir}/vendor/bin/pdepend.bat"/>-->

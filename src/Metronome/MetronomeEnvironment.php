@@ -64,15 +64,15 @@ class MetronomeEnvironment
     /**
      * @param string $uri
      * @param array|string $body
+     * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function postJson($uri, $body)
+    public function postJson($uri, $body, $headers = array())
     {
-        $headers = array(
-            'HTTP_CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => 'application/json',
-            'HTTP_X-Requested-With' => 'XMLHttpRequest'
-        );
+
+        $headers['HTTP_CONTENT_TYPE']       = 'application/json';
+        $headers['HTTP_ACCEPT']             = 'application/json';
+        $headers['HTTP_X-Requested-With']   = 'XMLHttpRequest';
         return $this->request("POST", $uri, array(), $headers, $body);
     }
 
@@ -114,13 +114,17 @@ class MetronomeEnvironment
         return $this->client->getResponse();
     }
 
-    public function putJson($uri, $body)
+    /**
+     * @param $uri
+     * @param $body
+     * @param array $headers
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function putJson($uri, $body, $headers = array())
     {
-        $headers = array(
-            'HTTP_CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => 'application/json',
-            'HTTP_X-Requested-With' => 'XMLHttpRequest'
-        );
+        $headers['HTTP_CONTENT_TYPE']       = 'application/json';
+        $headers['HTTP_ACCEPT']             = 'application/json';
+        $headers['HTTP_X-Requested-With']   = 'XMLHttpRequest';
         return $this->request("PUT", $uri, array(), $headers, $body);
     }
 
