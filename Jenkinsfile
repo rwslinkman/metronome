@@ -45,4 +45,10 @@ node {
               ]
         ])
     }
+
+    stage('Run dependency check') {
+        // OWASP dependency check
+        dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: false, includeHtmlReports: true, includeJsonReports: false, includeVulnReports: false, isAutoupdateDisabled: false, outdir: 'build/owasp', scanpath: './composer.lock', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+        dependencyCheckPublisher canComputeNew: true, canRunOnFailed: false, defaultEncoding: '', healthy: '', pattern: '**/build/owasp/dependency-check-report.xml', unHealthy: ''
+    }
 }
