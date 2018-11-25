@@ -170,7 +170,9 @@ Fixtures are part of the `Doctrine FixtureBundle`.
 Metronome can be used to verify some of the `Fixture` behaviour.
 
 ```php
-class MyFixtureTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class MyFixtureTest extends TestCase
 {
     public function test_givenFixture_whenLoad_shouldAlwaysPersist() {
         $envBuilder = new MetronomeBuilder();

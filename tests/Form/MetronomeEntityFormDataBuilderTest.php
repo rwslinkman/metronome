@@ -5,9 +5,10 @@ use Metronome\Form\MetronomeEntityFormDataBuilder;
 use Metronome\Form\MetronomeFormData;
 use Metronome\Injection\MetronomeUser;
 use Metronome\Tests\Util\TestEntity;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormError;
 
-class MetronomeEntityFormDataBuilderTest extends \PHPUnit_Framework_TestCase
+class MetronomeEntityFormDataBuilderTest extends TestCase
 {
     /** @var MetronomeEntityFormDataBuilder */
     private $dataBuilder;

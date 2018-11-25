@@ -2,8 +2,9 @@
 namespace Metronome;
 
 use Metronome\Tests\Util\SymfonyClient;
+use PHPUnit\Framework\TestCase;
 
-class MetronomeBuilderTest extends \PHPUnit_Framework_TestCase
+class MetronomeBuilderTest extends TestCase
 {
     /** @var MetronomeBuilder */
     private $builder;

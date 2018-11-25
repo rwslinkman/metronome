@@ -3,9 +3,10 @@ namespace Metronome\Tests\Form;
 
 use Metronome\Form\MetronomeFormData;
 use Metronome\Form\MetronomeFormDataBuilder;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormError;
 
-class MetronomeFormDataBuilderTest extends \PHPUnit_Framework_TestCase
+class MetronomeFormDataBuilderTest extends TestCase
 {
     /** @var MetronomeFormDataBuilder */
     private $dataBuilder;
