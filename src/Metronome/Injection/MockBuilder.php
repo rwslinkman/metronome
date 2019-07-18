@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Twig\Environment;
 use Twig_Environment;
 
 class MockBuilder
@@ -164,6 +165,28 @@ class MockBuilder
         return $formMock;
     }
 
+    public static function createTwigEnvironment() {
+        $html = "Test environment prevented template of being rendered";
+        $templateMock = \Mockery::mock('\Twig_Template', array(
+            "render" => $html
+        ));
+        $loaderMock = \Mockery::mock('\Twig_LoaderInterface', array(
+            "exists" => true
+        ));
+
+        $twigMock = \Mockery::mock(Environment::class, array(
+            "disableDebug" => null,
+            "getLoader" => $loaderMock,
+            "loadTemplate" => $templateMock,
+            "render" => $html
+        ));
+        return $twigMock;
+    }
+
+    /**
+     * @deprecated
+     * @return MockInterface|\Symfony\Bundle\TwigBundle\TwigEngine
+     */
     public static function createTwigTemplatingMock(){
         $twigMock = \Mockery::mock('\Symfony\Bundle\TwigBundle\TwigEngine', array(
             "renderResponse" => new Response(""),

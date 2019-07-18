@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
+use Twig\Environment;
 
 /**
  * Class MetronomeBuilder
@@ -169,7 +170,7 @@ class MetronomeBuilder
             $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
             $env->injectService(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
-            $templatingMock = MockBuilder::createTwigTemplatingMock();
+            $templatingMock = MockBuilder::createTwigEnvironment();
             $env->injectService(ServiceEnum::TEMPLATING, $templatingMock);
         }
 
@@ -178,7 +179,7 @@ class MetronomeBuilder
             // TODO This rendering can be improved, it's only used when mocking forms
             $env->injectService(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
-            $templatingMock = MockBuilder::createTwigTemplatingMock();
+            $templatingMock = MockBuilder::createTwigEnvironment();
             $env->injectService(ServiceEnum::TEMPLATING, $templatingMock);
         }
 
