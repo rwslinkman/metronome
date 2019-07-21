@@ -34,7 +34,9 @@ class MetronomeEnvironment
     function injectService($serviceName, $mock)
     {
         if ($this->client != null) {
-            $this->client->getContainer()->set($serviceName, $mock);
+            $container = $this->client->getContainer();
+            $container->set($serviceName, $mock);
+            $container->get("test.service_container")->set($serviceName, $mock);
         }
     }
 
