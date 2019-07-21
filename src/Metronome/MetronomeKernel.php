@@ -1,60 +1,105 @@
 <?php
 namespace Metronome;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle;
+use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
+use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
-class MetronomeKernel extends BaseKernel
-{
+class MetronomeKernel extends BaseKernel {
+
     use MicroKernelTrait;
 
-    const CONFIG_EXTS = '.{php,xml,yaml,yml}';
-
-    public function getCacheDir()
+    public function getOriginalContainer()
     {
-        return $this->getProjectDir().'/var/cache/'.$this->environment;
+        if(!$this->container) {
+            parent::boot();
+        }
+
+        /** @var Container $container */
+        return $this->container;
     }
 
-    public function getLogDir()
+    public function getContainer()
     {
-        return $this->getProjectDir().'/var/log';
+        if ($this->environment == 'prod') {
+            return parent::getContainer();
+        }
+
+        /** @var Container $container */
+        $container = $this->getOriginalContainer();
+
+        $testContainer = $container->get('my.test.service_container');
+
+        $testContainer->setPublicContainer($container);
+
+        return $testContainer;
     }
 
+    /**
+     * Returns an array of bundles to register.
+     *
+     * @return iterable|BundleInterface[] An iterable of bundle instances
+     */
     public function registerBundles()
     {
-        return array();
+        $bundles = array(
+            FrameworkBundle::class => ['all' => true],
+            SecurityBundle::class => ['all' => true],
+            DoctrineCacheBundle::class => ['all' => true],
+            DoctrineBundle::class => ['all' => true],
+            DoctrineFixturesBundle::class => ['all' => true]
+        );
+        foreach ($bundles as $class => $envs) {
+            if (isset($envs['all']) || isset($envs[$this->environment])) {
+                yield new $class();
+            }
+        }
     }
 
-    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
-    {
-        $container->addResource(new FileResource($this->getProjectDir().'/config/bundles.php'));
-        // Feel free to remove the "container.autowiring.strict_mode" parameter
-        // if you are using symfony/dependency-injection 4.0+ as it's the default behavior
-        $container->setParameter('container.autowiring.strict_mode', true);
-        $container->setParameter('container.dumper.inline_class_loader', true);
-        $confDir = $this->getProjectDir().'/config';
-
-        $loader->load($confDir.'/{packages}/*'.self::CONFIG_EXTS, 'glob');
-        $loader->load($confDir.'/{packages}/'.$this->environment.'/**/*'.self::CONFIG_EXTS, 'glob');
-        $loader->load($confDir.'/{services}'.self::CONFIG_EXTS, 'glob');
-        $loader->load($confDir.'/{services}_'.$this->environment.self::CONFIG_EXTS, 'glob');
-    }
-
+    /**
+     * Add or import routes into your application.
+     *
+     *     $routes->import('config/routing.yml');
+     *     $routes->add('/admin', 'App\Controller\AdminController::dashboard', 'admin_dashboard');
+     *
+     * @param RouteCollectionBuilder $routes
+     */
     protected function configureRoutes(RouteCollectionBuilder $routes)
     {
-        $confDir = $this->getProjectDir().'/config';
-
-        $routes->import($confDir.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir.'/{routes}/'.$this->environment.'/**/*'.self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir.'/{routes}'.self::CONFIG_EXTS, '/', 'glob');
+        // TODO: Implement configureRoutes() method.
     }
 
-    protected function getContainerClass()
+    /**
+     * Configures the container.
+     *
+     * You can register extensions:
+     *
+     *     $c->loadFromExtension('framework', [
+     *         'secret' => '%secret%'
+     *     ]);
+     *
+     * Or services:
+     *
+     *     $c->register('halloween', 'FooBundle\HalloweenProvider');
+     *
+     * Or parameters:
+     *
+     *     $c->setParameter('halloween', 'lot of fun');
+     *
+     * @param ContainerBuilder $c
+     * @param LoaderInterface $loader
+     */
+    protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
     {
-        return MetronomeContainer::class;
+        // TODO: Implement configureContainer() method.
     }
 }

@@ -1,37 +1,27 @@
 <?php
-
 namespace Metronome;
 
-use Closure;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use Symfony\Bundle\FrameworkBundle\Test\TestContainer as BaseTestContainer;
 
-
-class MetronomeContainer extends Container
+class MetronomeContainer extends BaseTestContainer
 {
+    private $publicContainer;
+
     public function set($id, $service)
     {
-        // Runs the internal initializer; used by the dumped container to include always-needed files
-        if (isset($this->privates['service_container']) && $this->privates['service_container'] instanceof Closure) {
-            $initialize = $this->privates['service_container'];
-            unset($this->privates['service_container']);
-            $initialize();
-        }
+        $r = new \ReflectionObject($this->publicContainer);
+        $p = $r->getProperty('services');
+        $p->setAccessible(true);
 
-        if ('service_container' === $id) {
-            throw new InvalidArgumentException('You cannot set service "service_container".');
-        }
+        $services = $p->getValue($this->publicContainer);
 
-        if (isset($this->aliases[$id])) {
-            unset($this->aliases[$id]);
-        }
+        $services[$id] = $service;
 
-        if (null === $service) {
-            unset($this->services[$id]);
+        $p->setValue($this->publicContainer, $services);
+    }
 
-            return;
-        }
-
-        $this->services[$id] = $service;
+    public function setPublicContainer($container)
+    {
+        $this->publicContainer = $container;
     }
 }
