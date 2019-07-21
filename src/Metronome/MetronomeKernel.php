@@ -26,7 +26,7 @@ class MetronomeKernel extends BaseKernel
 
     public function registerBundles()
     {
-        // NOP
+        return array();
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
