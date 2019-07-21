@@ -9,4 +9,5 @@ abstract class ServiceEnum
     const TEMPLATING                = "templating";
     const FORM_FACTORY              = "form.factory";
     const ENTITY_MANAGER            = 'doctrine.orm.entity_manager';
+    const TWIG                      = "twig";
 }

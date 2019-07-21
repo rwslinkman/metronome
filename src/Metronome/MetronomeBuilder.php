@@ -181,6 +181,7 @@ class MetronomeBuilder
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigEnvironment();
             $env->injectService(ServiceEnum::TEMPLATING, $templatingMock);
+            $env->injectService(ServiceEnum::TWIG, $templatingMock);
         }
 
         // Logged in status mock
