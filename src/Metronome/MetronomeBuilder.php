@@ -17,7 +17,6 @@ use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
-use Twig\Environment;
 
 /**
  * Class MetronomeBuilder

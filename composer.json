@@ -25,7 +25,9 @@
         "symfony/finder": "~4.0|~3.0",
         "mockery/mockery": "^1.2",
         "doctrine/doctrine-fixtures-bundle": "~3.0|~2.3",
-        "symfony/dom-crawler": "^4.1"
+        "symfony/dom-crawler": "^4.1",
+        "symfony/browser-kit": "^4.3",
+        "symfony/security-bundle": "^4.1"
     },
     "require-dev": {
         "pdepend/pdepend": "^2.5",

@@ -4,7 +4,6 @@ namespace Metronome\Tests\Form;
 use Metronome\Form\MetronomeFormData;
 use Metronome\Form\MetronomeFormDataBuilder;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Form\FormError;
 
 class MetronomeFormDataBuilderTest extends TestCase
 {
@@ -146,7 +145,7 @@ class MetronomeFormDataBuilderTest extends TestCase
 
     public function test_givenBuilder_andIsNotValid_andFormErrorsSet_thenShouldReturnNonNull() {
         $this->dataBuilder
-            ->error("not_blank", new FormError("The value was blank"))
+            ->error("not_blank", "The value was blank")
         ;
 
         $result = $this->dataBuilder->build();
@@ -156,7 +155,7 @@ class MetronomeFormDataBuilderTest extends TestCase
 
     public function test_givenBuilder_andIsNotValid_andFormErrorsSet_thenShouldReturnMetronomeFormData() {
         $this->dataBuilder
-            ->error("not_blank", new FormError("The value was blank"))
+            ->error("not_blank", "The value was blank")
         ;
 
         $result = $this->dataBuilder->build();
@@ -166,7 +165,7 @@ class MetronomeFormDataBuilderTest extends TestCase
 
     public function test_givenBuilder_andIsNotValid_andFormErrorsSet_thenShouldReturnErrors() {
         $this->dataBuilder
-            ->error("not_blank", new FormError("The value was blank"))
+            ->error("not_blank", "The value was blank")
         ;
 
         $result = $this->dataBuilder->build();
@@ -177,7 +176,7 @@ class MetronomeFormDataBuilderTest extends TestCase
 
     public function test_givenBuilder_andIsNotValid_andFormErrorsSet_thenShouldReturnError() {
         $this->dataBuilder
-            ->error("not_blank", new FormError("The value was blank"))
+            ->error("not_blank", "The value was blank")
         ;
 
         $result = $this->dataBuilder->build();
@@ -188,7 +187,7 @@ class MetronomeFormDataBuilderTest extends TestCase
 
     public function test_givenBuilder_andIsNotValid_andFormErrorsSet_thenShouldReturnErrorObject() {
         $this->dataBuilder
-            ->error("not_blank", new FormError("The value was blank"))
+            ->error("not_blank", "The value was blank")
         ;
 
         $result = $this->dataBuilder->build();
@@ -200,13 +199,12 @@ class MetronomeFormDataBuilderTest extends TestCase
 
     public function test_givenBuilder_andIsNotValid_andFormErrorsSet_thenShouldReturnErrorClass() {
         $this->dataBuilder
-            ->error("not_blank", new FormError("The value was blank"))
-        ;
+            ->error("not_blank", "The value was blank");
 
         $result = $this->dataBuilder->build();
 
         $errors = $result->getErrors();
         $error = $errors["not_blank"];
-        $this->assertTrue($error instanceof FormError);
+        $this->assertEquals("The value was blank", $error);
     }
 }

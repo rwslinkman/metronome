@@ -1,6 +1,5 @@
 <?php
 namespace Metronome\Form;
-use Symfony\Component\Form\FormError;
 
 /**
  * Class MetronomeFormDataBuilder
@@ -33,7 +32,7 @@ class MetronomeFormDataBuilder
         return $this;
     }
 
-    public function error($errorName, FormError $error) {
+    public function error($errorName, $error) {
         if(!array_key_exists($errorName, $this->errors)) {
             $this->errors[$errorName] = "";
         }
