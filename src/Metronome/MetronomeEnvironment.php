@@ -27,23 +27,6 @@ class MetronomeEnvironment
     }
 
     /**
-     * @param string $serviceName
-     * @param mixed $mock
-     */
-    /* package */
-    function injectService($serviceName, $mock)
-    {
-        if ($this->client != null) {
-            $container = $this->client->getContainer();
-            $container->set($serviceName, $mock);
-
-            $testContainer = $container->get("test.service_container");
-            $testContainer->getDefinition($serviceName)->setSynthetic(true);
-            $testContainer->set($serviceName, $mock);
-        }
-    }
-
-    /**
      * Sends a GET request to the MetronomeEnvironment to test your application
      * @param string $uri
      * @param array $headers
@@ -202,6 +185,14 @@ class MetronomeEnvironment
                 $errorStr = sprintf("Header '%s' does not start with '%s'", $headerName, self::HEADER_PREFIX);
                 throw new InvalidArgumentException($errorStr);
             }
+        }
+    }
+
+    public function injectTestContainer(MetronomeContainer $testContainer)
+    {
+        if ($this->client != null) {
+            $container = $this->client->getContainer();
+            $container->set("test.service_container", $testContainer);
         }
     }
 }

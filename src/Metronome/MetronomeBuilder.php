@@ -10,6 +10,7 @@ use Metronome\Injection\MetronomeLoginData;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\RepoInjector;
 use Metronome\Injection\ServiceInjector;
+use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -135,27 +136,19 @@ class MetronomeBuilder
      * @return MetronomeEnvironment
      */
     public function build() {
-        if($this->shouldFailFormLogin && $this->loginData) {
-            throw new InvalidArgumentException("Cannot use shouldFailFormLogin() and requiresLogin() simultaneously");
-        }
-        if($this->authException && $this->loginData) {
-            throw new InvalidArgumentException("Cannot use injectAuthenticationError() and requiresLogin() simultaneously");
-        }
-        if(!empty($this->injectedForms) && $this->mockSymfonyForms) {
-            throw new InvalidArgumentException("Cannot use injectForm() and mockSymfonyForms() simutaneously");
-        }
+        $this->verifyState();
+
+        $testContainer = new MetronomeContainer();
 
         $emMock = $this->buildEntityManager(null);
-
-        $env = new MetronomeEnvironment($this->symfonyClient);
         // Database / Doctrine mock
-        $env->injectService(ServiceEnum::ENTITY_MANAGER, $emMock);
+        $testContainer->set(ServiceEnum::ENTITY_MANAGER, $emMock);
 
         // Symfony services mocking
         /** @var ServiceInjector $injectedService */
         foreach ($this->injectedServices as $injectedService) {
             $injectedServiceMock = \Mockery::mock($injectedService->serviceClass(), $injectedService->inject());
-            $env->injectService($injectedService->serviceName(), $injectedServiceMock);
+            $testContainer->set($injectedService->serviceName(), $injectedServiceMock);
         }
 
         // Symfony templating engine
@@ -168,20 +161,20 @@ class MetronomeBuilder
 
             // TODO This rendering can be improved, it's only used when mocking forms
             $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
-            $env->injectService(ServiceEnum::FORM_FACTORY, $formMock);
+            $testContainer->set(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigEnvironment();
-            $env->injectService(ServiceEnum::TEMPLATING, $templatingMock);
+            $testContainer->set(ServiceEnum::TEMPLATING, $templatingMock);
         }
 
         if(!empty($this->injectedForms)) {
             $formMock = MockBuilder::createFormFactoryMock($this->injectedForms);
             // TODO This rendering can be improved, it's only used when mocking forms
-            $env->injectService(ServiceEnum::FORM_FACTORY, $formMock);
+            $testContainer->set(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigEnvironment();
-            $env->injectService(ServiceEnum::TEMPLATING, $templatingMock);
-            $env->injectService(ServiceEnum::TWIG, $templatingMock);
+            $testContainer->set(ServiceEnum::TEMPLATING, $templatingMock);
+            $testContainer->set(ServiceEnum::TWIG, $templatingMock);
         }
 
         // Logged in status mock
@@ -195,18 +188,21 @@ class MetronomeBuilder
             $mockUP = MockBuilder::createMockUserProvider($token);
             $mockTokenStorage = MockBuilder::createTokenStorageMock($token);
 
-            $env->injectService($this->loginData->getAuthenticatorService(), $mockUP);
-            $env->injectService(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
+            $testContainer->set($this->loginData->getAuthenticatorService(), $mockUP);
+            $testContainer->set(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
         }
 
         // Login form mock
         if($this->shouldFailFormLogin || ($this->authException != null)) {
             if($this->authException == null) {
-                $this->authException = new CustomUserMessageAuthenticationException("Invalid Credentials");
+                $this->authException = new MetronomeAuthenticationException("Invalid Credentials");
             }
             $authMock = MockBuilder::createAuthUtilsMock($this->authException);
-            $env->injectService(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
+            $testContainer->set(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
         }
+
+        $env = new MetronomeEnvironment($this->symfonyClient);
+        $env->injectTestContainer($testContainer);
 
         return $env;
     }
@@ -256,5 +252,18 @@ class MetronomeBuilder
             "getManagerForClass" => $mockEM,
         ));
         return $mockMR;
+    }
+
+    private function verifyState(): void
+    {
+        if ($this->shouldFailFormLogin && $this->loginData) {
+            throw new InvalidArgumentException("Cannot use shouldFailFormLogin() and requiresLogin() simultaneously");
+        }
+        if ($this->authException && $this->loginData) {
+            throw new InvalidArgumentException("Cannot use injectAuthenticationError() and requiresLogin() simultaneously");
+        }
+        if (!empty($this->injectedForms) && $this->mockSymfonyForms) {
+            throw new InvalidArgumentException("Cannot use injectForm() and mockSymfonyForms() simutaneously");
+        }
     }
 }
