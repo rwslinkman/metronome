@@ -36,7 +36,10 @@ class MetronomeEnvironment
         if ($this->client != null) {
             $container = $this->client->getContainer();
             $container->set($serviceName, $mock);
-            $container->get("test.service_container")->set($serviceName, $mock);
+
+            $testContainer = $container->get("test.service_container");
+            $testContainer->getDefinition($serviceName)->setSynthetic(true);
+            $testContainer->set($serviceName, $mock);
         }
     }
 
