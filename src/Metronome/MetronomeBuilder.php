@@ -137,7 +137,8 @@ class MetronomeBuilder
     public function build() {
         $this->verifyState();
 
-        $testContainer = new MetronomeContainer();
+        $testContainer = new MetronomeContainer($this->symfonyClient->getKernel(), 'my.test.service_container');
+        $testContainer->setPublicContainer($this->symfonyClient->getContainer()->get("test.service_container"));
 
         $emMock = $this->buildEntityManager(null);
         // Database / Doctrine mock

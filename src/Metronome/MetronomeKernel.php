@@ -53,10 +53,10 @@ class MetronomeKernel extends BaseKernel {
     {
         $bundles = array(
             FrameworkBundle::class => ['all' => true],
-            SecurityBundle::class => ['all' => true],
-            DoctrineCacheBundle::class => ['all' => true],
+//            SecurityBundle::class => ['all' => true],
+//            DoctrineCacheBundle::class => ['all' => true],
             DoctrineBundle::class => ['all' => true],
-            DoctrineFixturesBundle::class => ['all' => true]
+//            DoctrineFixturesBundle::class => ['all' => true]
         );
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {

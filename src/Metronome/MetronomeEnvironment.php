@@ -192,7 +192,7 @@ class MetronomeEnvironment
     {
         if ($this->client != null) {
             $container = $this->client->getContainer();
-            $container->set("test.service_container", $testContainer);
+//            $container->set("test.service_container", $testContainer);
         }
     }
 }
