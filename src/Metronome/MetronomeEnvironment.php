@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\BrowserKit\Cookie;
 
 /**
  * class MetronomeEnvironment
@@ -32,10 +33,10 @@ class MetronomeEnvironment
      * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function get($uri, $headers = array())
+    public function get($uri, $headers = array(), $sessionMap = array())
     {
         $this->validateHeaders($headers);
-        return $this->request("GET", $uri, array(), $headers);
+        return $this->request("GET", $uri, array(), $headers, $sessionMap);
     }
 
     /**
@@ -44,9 +45,9 @@ class MetronomeEnvironment
      * @param array $headers
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function post($uri, $headers = array()) {
+    public function post($uri, $headers = array(), $sessionMap = array()) {
         $this->validateHeaders($headers);
-        return $this->request("POST", $uri, array(), $headers);
+        return $this->request("POST", $uri, array(), $headers, $sessionMap);
     }
 
     /**
@@ -152,6 +153,14 @@ class MetronomeEnvironment
         return $this->latestCrawler;
     }
 
+    public function injectTestContainer(MetronomeContainer $testContainer)
+    {
+        if ($this->client != null) {
+            $container = $this->client->getContainer();
+//            $container->set("test.service_container", $testContainer);
+        }
+    }
+
     /**
      * @param $method
      * @param string $uri
@@ -160,13 +169,15 @@ class MetronomeEnvironment
      * @param string $body
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    private function request($method, $uri, $files = array(), $headers = array(), $body = null)
+    private function request($method, $uri, $files = array(), $headers = array(), $body = null, $sessionMap = array())
     {
         // Prepare JSON body
         $content = null;
         if ($body != null) {
             $content = json_encode($body);
         }
+
+        $this->prepareSession($sessionMap);
 
         $this->latestCrawler = $this->client->request($method, $uri, array(), $files, $headers, $content);
         // TODO: Analyze response and warn for errors, flashbag messages, etc.
@@ -188,11 +199,13 @@ class MetronomeEnvironment
         }
     }
 
-    public function injectTestContainer(MetronomeContainer $testContainer)
-    {
-        if ($this->client != null) {
-            $container = $this->client->getContainer();
-//            $container->set("test.service_container", $testContainer);
+    private function prepareSession($sessionMap) {
+        $session = $this->client->getContainer()->get('session');
+        $session->start();
+        foreach($sessionMap as $sessionKey => $sessionValue) {
+            $session->set($sessionKey, $sessionValue);
         }
+        $session->save();
+        $this->client->getCookieJar()->set(new Cookie($session->getName(), $session->getId()));
     }
 }

@@ -188,7 +188,7 @@ class MetronomeBuilder
             $mockUP = MockBuilder::createMockUserProvider($token);
             $mockTokenStorage = MockBuilder::createTokenStorageMock($token);
 
-            $testContainer->set($this->loginData->getAuthenticatorService(), $mockUP);
+//            $testContainer->set($this->loginData->getAuthenticatorService(), $mockUP);
             $testContainer->set(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
         }
 
@@ -254,7 +254,7 @@ class MetronomeBuilder
         return $mockMR;
     }
 
-    private function verifyState(): void
+    private function verifyState()
     {
         if ($this->shouldFailFormLogin && $this->loginData) {
             throw new InvalidArgumentException("Cannot use shouldFailFormLogin() and requiresLogin() simultaneously");
