@@ -137,18 +137,18 @@ class MetronomeBuilder
     public function build() {
         $this->verifyState();
 
-        $testContainer = new MetronomeContainer($this->symfonyClient->getKernel(), 'my.test.service_container');
-        $testContainer->setPublicContainer($this->symfonyClient->getContainer()->get("test.service_container"));
+//        $testContainer = new MetronomeContainer($this->symfonyClient->getKernel(), 'my.test.service_container');
+//        $testContainer->setPublicContainer($this->symfonyClient->getContainer()->get("test.service_container"));
 
         $emMock = $this->buildEntityManager(null);
         // Database / Doctrine mock
-        $testContainer->set(ServiceEnum::ENTITY_MANAGER, $emMock);
+        $this->symfonyClient->getContainer()->set(ServiceEnum::ENTITY_MANAGER, $emMock);
 
         // Symfony services mocking
         /** @var ServiceInjector $injectedService */
         foreach ($this->injectedServices as $injectedService) {
             $injectedServiceMock = \Mockery::mock($injectedService->serviceClass(), $injectedService->inject());
-            $testContainer->set($injectedService->serviceName(), $injectedServiceMock);
+            $this->symfonyClient->getContainer()->set($injectedService->serviceName(), $injectedServiceMock);
         }
 
         // Symfony templating engine
@@ -161,20 +161,20 @@ class MetronomeBuilder
 
             // TODO This rendering can be improved, it's only used when mocking forms
             $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
-            $testContainer->set(ServiceEnum::FORM_FACTORY, $formMock);
+            $this->symfonyClient->getContainer()->set(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigEnvironment();
-            $testContainer->set(ServiceEnum::TEMPLATING, $templatingMock);
+            $this->symfonyClient->getContainer()->set(ServiceEnum::TEMPLATING, $templatingMock);
         }
 
         if(!empty($this->injectedForms)) {
             $formMock = MockBuilder::createFormFactoryMock($this->injectedForms);
             // TODO This rendering can be improved, it's only used when mocking forms
-            $testContainer->set(ServiceEnum::FORM_FACTORY, $formMock);
+            $this->symfonyClient->getContainer()->set(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigEnvironment();
-            $testContainer->set(ServiceEnum::TEMPLATING, $templatingMock);
-            $testContainer->set(ServiceEnum::TWIG, $templatingMock);
+            $this->symfonyClient->getContainer()->set(ServiceEnum::TEMPLATING, $templatingMock);
+            $this->symfonyClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
         }
 
         // Logged in status mock
@@ -189,7 +189,7 @@ class MetronomeBuilder
             $mockTokenStorage = MockBuilder::createTokenStorageMock($token);
 
 //            $testContainer->set($this->loginData->getAuthenticatorService(), $mockUP);
-            $testContainer->set(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
+            $this->symfonyClient->getContainer()->set(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
         }
 
         // Login form mock
@@ -198,11 +198,12 @@ class MetronomeBuilder
                 $this->authException = new MetronomeAuthenticationException("Invalid Credentials");
             }
             $authMock = MockBuilder::createAuthUtilsMock($this->authException);
-            $testContainer->set(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
+            $this->symfonyClient->getContainer()->set(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
         }
 
+        // TODO Build $env with $testContainer
         $env = new MetronomeEnvironment($this->symfonyClient);
-        $env->injectTestContainer($testContainer);
+//        $env->injectTestContainer($testContainer);
 
         return $env;
     }

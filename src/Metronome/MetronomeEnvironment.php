@@ -1,5 +1,4 @@
 <?php
-
 namespace Metronome;
 
 use InvalidArgumentException;
@@ -151,14 +150,6 @@ class MetronomeEnvironment
     public function getLatestCrawler()
     {
         return $this->latestCrawler;
-    }
-
-    public function injectTestContainer(MetronomeContainer $testContainer)
-    {
-        if ($this->client != null) {
-            $container = $this->client->getContainer();
-//            $container->set("test.service_container", $testContainer);
-        }
     }
 
     /**
