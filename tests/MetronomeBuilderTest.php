@@ -12,8 +12,8 @@ class MetronomeBuilderTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $client = SymfonyClient::mock();
-        $this->builder = new MetronomeBuilder($client);
+        $client = new MetronomeTestClientBuilder();
+        $this->builder = new MetronomeBuilder($client->build());
     }
 
     public function test_givenBuilder_whenConstruct_thenShouldNotCrash() {

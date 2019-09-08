@@ -8,13 +8,13 @@ use \InvalidArgumentException;
 use Metronome\Form\MetronomeFormData;
 use Metronome\Injection\MetronomeLoginData;
 use Metronome\Injection\MockBuilder;
+use Metronome\Injection\MockCreator;
 use Metronome\Injection\RepoInjector;
 use Metronome\Injection\ServiceInjector;
 use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
-use rwslinkman\Controller\ArticleManagementController;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
@@ -28,8 +28,8 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
  */
 class MetronomeBuilder
 {
-    /** @var Client */
-    private $symfonyClient;
+    /** @var KernelBrowser */
+    private $testClient;
     /** @var  EntityRepository */
     private $repository;
     /** @var MetronomeLoginData */
@@ -57,13 +57,14 @@ class MetronomeBuilder
     //
     private $entityManagerLoadAll;
     private $entityManagerLoad;
+    private $preparedController;
 
-    public function __construct(Client $client = null, $useHTTPS = true) {
+    public function __construct(KernelBrowser $client = null, $useHTTPS = true) {
         if($client != null){
             // Force HTTPS in test
             $client->setServerParameter("HTTPS", $useHTTPS);
         }
-        $this->symfonyClient = $client;
+        $this->testClient = $client;
         $this->repository = null;
         $this->loginData = null;
         $this->injectedServices = array();
@@ -74,6 +75,7 @@ class MetronomeBuilder
         $this->mockSymfonyForms = false;
         $this->entityManagerLoadAll = null;
         $this->entityManagerLoad = null;
+        $this->preparedController = null;
     }
 
     public function injectService(ServiceInjector $serviceInjector) {
@@ -133,26 +135,36 @@ class MetronomeBuilder
         $this->entityManagerLoad = $result;
     }
 
+    public function prepareController($controllerClass, $parameterDefinition) {
+        try {
+            $reflectionController = new \ReflectionClass($controllerClass);
+            $reflectionConstructor = $reflectionController->getConstructor();
+            $parameters = $reflectionConstructor->getParameters();
+            foreach($parameters as $parameter) {
+                var_dump($parameter->name);
+            }
+        } catch (\ReflectionException $e) {
+            var_dump($e);
+        }
+    }
+
     /**
      * @return MetronomeEnvironment
      */
     public function build() {
         $this->verifyState();
 
-//        $testContainer = new MetronomeContainer($this->symfonyClient->getKernel(), 'my.test.service_container');
-//        $testContainer->setPublicContainer($this->symfonyClient->getContainer()->get("test.service_container"));
-
         $emMock = $this->buildEntityManager(null);
         // Database / Doctrine mock
-        $this->symfonyClient->getKernel()->boot();
-        $this->symfonyClient->getContainer()->set(ServiceEnum::ENTITY_MANAGER, $emMock);
-        $this->symfonyClient->getContainer()->set("doctrine.orm.default_entity_manager", $emMock);
+        $this->testClient->getKernel()->boot();
+        $this->inject(ServiceEnum::ENTITY_MANAGER, $emMock);
+        $this->inject("doctrine.orm.default_entity_manager", $emMock);
 
         // Symfony services mocking
         /** @var ServiceInjector $injectedService */
         foreach ($this->injectedServices as $injectedService) {
-            $injectedServiceMock = \Mockery::mock($injectedService->serviceClass(), $injectedService->inject());
-            $this->symfonyClient->getContainer()->set($injectedService->serviceName(), $injectedServiceMock);
+            $injectedServiceMock = MockCreator::mock($injectedService->serviceClass(), $injectedService->inject());
+            $this->inject($injectedService->serviceName(), $injectedServiceMock);
         }
 
         // Symfony templating engine
@@ -165,21 +177,19 @@ class MetronomeBuilder
 
             // TODO This rendering can be improved, it's only used when mocking forms
             $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
-            $this->symfonyClient->getContainer()->set(ServiceEnum::FORM_FACTORY, $formMock);
+            $this->inject(ServiceEnum::FORM_FACTORY, $formMock);
             // TODO This mock can be removed when FormView is succesfully mocked
             $templatingMock = MockBuilder::createTwigEnvironment();
-            $this->symfonyClient->getContainer()->set(ServiceEnum::TEMPLATING, $templatingMock);
+            $this->inject(ServiceEnum::TEMPLATING, $templatingMock);
         }
 
         if(!empty($this->injectedForms)) {
             $formMock = MockBuilder::createFormFactoryMock($this->injectedForms);
             // TODO This rendering can be improved, it's only used when mocking forms
-            $this->symfonyClient->getContainer()->set(ServiceEnum::FORM_FACTORY, $formMock);
-            // TODO This mock can be removed when FormView is succesfully mocked
-            $templatingMock = MockBuilder::createTwigEnvironment();
-            $this->symfonyClient->getContainer()->set(ServiceEnum::TEMPLATING, $templatingMock);
-            $this->symfonyClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
+            $this->inject(ServiceEnum::FORM_FACTORY, $formMock);
         }
+        $templatingMock = MockBuilder::createTwigEnvironment();
+        $this->testClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
 
         // Logged in status mock
         if($this->loginData != null) {
@@ -189,11 +199,8 @@ class MetronomeBuilder
                 $token->setAttribute($attribute, $value);
             }
 
-            $mockUP = MockBuilder::createMockUserProvider($token);
             $mockTokenStorage = MockBuilder::createTokenStorageMock($token);
-
-//            $testContainer->set($this->loginData->getAuthenticatorService(), $mockUP);
-            $this->symfonyClient->getContainer()->set(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
+            $this->inject(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
         }
 
         // Login form mock
@@ -202,10 +209,10 @@ class MetronomeBuilder
                 $this->authException = new MetronomeAuthenticationException("Invalid Credentials");
             }
             $authMock = MockBuilder::createAuthUtilsMock($this->authException);
-            $this->symfonyClient->getContainer()->set(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
+            $this->inject(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
         }
 
-        $sessionMock = \Mockery::mock("Symfony\Component\HttpFoundation\Session\Session", array(
+        $sessionMock = MockCreator::mock("Symfony\Component\HttpFoundation\Session\Session", array(
             "start" => null,
             "set" => null,
             "save" => null,
@@ -216,7 +223,7 @@ class MetronomeBuilder
             "remove" => null,
             "getFlashBag" => new FlashBag("someKey")
         ));
-        $this->symfonyClient->getContainer()->set("session", $sessionMock);
+        $this->inject("session", $sessionMock);
 
         // TODO: Make controllers injectable again
 //        $this->symfonyClient->getContainer()->set("rwslinkman\Controller\ArticleManagementController",
@@ -226,11 +233,10 @@ class MetronomeBuilder
 //            )
 //        );
 
-        $templatingMock = MockBuilder::createTwigEnvironment();
-        $this->symfonyClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
+        // TODO: Finally, inject controller that will be tested)
 
         // TODO Build $env with $testContainer
-        $env = new MetronomeEnvironment($this->symfonyClient);
+        $env = new MetronomeEnvironment($this->testClient);
 //        $env->injectTestContainer($testContainer);
 
         return $env;
@@ -247,7 +253,7 @@ class MetronomeBuilder
         /** @var RepoInjector $repo */
         foreach ($this->injectedRepos as $repo) {
             if($repo->repositoryName() === $repoClass) {
-                $repoMock = \Mockery::mock($repo->repositoryClass(), $repo->inject());
+                $repoMock = MockCreator::mock($repo->repositoryClass(), $repo->inject());
                 break;
             }
         }
@@ -259,7 +265,7 @@ class MetronomeBuilder
      * @return ReferenceRepository|MockInterface
      */
     public function buildFixtureReferenceRepoMock($getReference = null) {
-        $mockRR = \Mockery::mock('\Doctrine\Common\DataFixtures\ReferenceRepository', array(
+        $mockRR = MockCreator::mock('\Doctrine\Common\DataFixtures\ReferenceRepository', array(
             "getReference" => $getReference,
             "hasReference" => $getReference != null,
             "setReference" => null,
@@ -277,7 +283,7 @@ class MetronomeBuilder
         $mockEM = MockBuilder::createMockEntityManager(null, null, null, null,
             $this->entityManagerLoad, $this->entityManagerLoadAll, $entityClass);
         //
-        $mockMR = \Mockery::mock('Doctrine\Common\Persistence\ManagerRegistry', array(
+        $mockMR = MockCreator::mock('Doctrine\Common\Persistence\ManagerRegistry', array(
             "getManagerForClass" => $mockEM,
         ));
         return $mockMR;
@@ -294,5 +300,9 @@ class MetronomeBuilder
         if (!empty($this->injectedForms) && $this->mockSymfonyForms) {
             throw new InvalidArgumentException("Cannot use injectForm() and mockSymfonyForms() simutaneously");
         }
+    }
+
+    private function inject($serviceId, $mock) {
+        $this->testClient->getContainer()->set($serviceId, $mock);
     }
 }

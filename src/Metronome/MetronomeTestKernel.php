@@ -2,9 +2,11 @@
 namespace Metronome;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Exception;
 use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\Config\Exception\LoaderLoadException;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -17,26 +19,27 @@ class MetronomeTestKernel extends Kernel
 
     const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
-    public function __construct()
+    private $projectDir;
+    private $additionalBundles;
+
+    public function __construct($projectDir = null, $additionalBundles = array())
     {
         parent::__construct('test', true);
+        $this->projectDir = $projectDir;
+        $this->additionalBundles = array_merge(array(
+            new FrameworkBundle(),
+            new DoctrineBundle()
+        ), $additionalBundles);
+
     }
     public function registerBundles()
     {
-        return [
-//            new KnpULoremIpsumBundle(),
-            new FrameworkBundle(),
-            new DoctrineBundle()
-        ];
+        return $this->additionalBundles;
     }
 
     public function getCacheDir()
     {
         return $this->projectDir().'/var/cache/'.spl_object_hash($this);
-    }
-
-    private function projectDir() {
-        return $this->getProjectDir()."/../../..";
     }
 
     /**
@@ -46,7 +49,7 @@ class MetronomeTestKernel extends Kernel
      *     $routes->add('/admin', 'App\Controller\AdminController::dashboard', 'admin_dashboard');
      *
      * @param RouteCollectionBuilder $routes
-     * @throws \Symfony\Component\Config\Exception\LoaderLoadException
+     * @throws LoaderLoadException
      */
     protected function configureRoutes(RouteCollectionBuilder $routes)
     {
@@ -75,22 +78,23 @@ class MetronomeTestKernel extends Kernel
      *
      * @param ContainerBuilder $container
      * @param LoaderInterface $loader
-     * @throws \Exception
+     * @throws Exception
      */
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
     {
         $container->addResource(new FileResource($this->projectDir().'/config/bundles.php'));
-        // Feel free to remove the "container.autowiring.strict_mode" parameter
-        // if you are using symfony/dependency-injection 4.0+ as it's the default behavior
         $container->setParameter('container.autowiring.strict_mode', true);
         $container->setParameter('container.dumper.inline_class_loader', true);
-
-        $confDir = $this->projectDir()."/config";
-//        $loader->load($confDir.'/{packages}/*'.self::CONFIG_EXTS, 'glob');
-//        $loader->load($confDir.'/{services}'.self::CONFIG_EXTS, 'glob');
 
         $container->loadFromExtension("framework", array(
             "secret" => "someSecret"
         ));
+    }
+
+    private function projectDir() {
+        if($this->projectDir != null) {
+            return $this->projectDir;
+        }
+        return $this->getProjectDir()."/../../..";
     }
 }
