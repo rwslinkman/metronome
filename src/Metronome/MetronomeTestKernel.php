@@ -4,6 +4,7 @@ namespace Metronome;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
@@ -46,7 +47,7 @@ class MetronomeTestKernel extends Kernel
      */
     protected function configureRoutes(RouteCollectionBuilder $routes)
     {
-        $confDir = $this->getProjectDir().'/config';
+        $confDir = $this->projectDir().'/config';
 
         $routes->import($confDir.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir.'/{routes}'.self::CONFIG_EXTS, '/', 'glob');
@@ -69,11 +70,16 @@ class MetronomeTestKernel extends Kernel
      *
      *     $c->setParameter('halloween', 'lot of fun');
      *
-     * @param ContainerBuilder $c
+     * @param ContainerBuilder $container
      * @param LoaderInterface $loader
      */
-    protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
     {
-        // TODO: Implement configureContainer() method.
+        $container->addResource(new FileResource($this->projectDir().'/config/bundles.php'));
+        // Feel free to remove the "container.autowiring.strict_mode" parameter
+        // if you are using symfony/dependency-injection 4.0+ as it's the default behavior
+        $container->setParameter('container.autowiring.strict_mode', true);
+        $container->setParameter('container.dumper.inline_class_loader', true);
+//        $confDir = $this->getProjectDir().'/config';
     }
 }
