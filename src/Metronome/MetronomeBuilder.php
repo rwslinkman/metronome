@@ -6,14 +6,17 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
 use Metronome\Form\MetronomeFormData;
+use Metronome\Injection\MetronomeArgument;
 use Metronome\Injection\MetronomeLoginData;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\MockCreator;
+use Metronome\Injection\PreparedController;
 use Metronome\Injection\RepoInjector;
 use Metronome\Injection\ServiceInjector;
 use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
+use mysql_xdevapi\Exception;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -135,14 +138,36 @@ class MetronomeBuilder
         $this->entityManagerLoad = $result;
     }
 
-    public function prepareController($controllerClass, $parameterDefinition) {
+    public function prepareController($controllerClass, $parameterDefinitions) {
+        $defNames = array();
+        /** @var MetronomeArgument $definition */
+        foreach($parameterDefinitions as $definition) {
+            if($definition instanceof MetronomeArgument == false) {
+                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
+            }
+            $defNames[$definition->getParameterName()] = $definition->getInjectedServiceId();
+        }
+
         try {
             $reflectionController = new \ReflectionClass($controllerClass);
             $reflectionConstructor = $reflectionController->getConstructor();
             $parameters = $reflectionConstructor->getParameters();
+
+            $arguments = array();
             foreach($parameters as $parameter) {
                 var_dump($parameter->name);
+
+                if(array_key_exists($parameter->name, $defNames)) {
+                    $def = $defNames[$parameter->name];
+                    $arguments[$parameter->name] = $this->testClient->getContainer()->get($def);
+                } else {
+                    throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
+                }
             }
+
+            var_dump($arguments);
+            $controllerInstance = $reflectionController->newInstanceArgs($arguments);
+            $this->preparedController = new PreparedController();
         } catch (\ReflectionException $e) {
             var_dump($e);
         }
