@@ -1,6 +1,7 @@
 <?php
 namespace Metronome;
 
+use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,6 +22,7 @@ class MetronomeTestKernel extends Kernel
     {
         return [
 //            new KnpULoremIpsumBundle(),
+            new FrameworkBundle(),
         ];
     }
 
