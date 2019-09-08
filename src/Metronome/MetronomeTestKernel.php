@@ -1,6 +1,7 @@
 <?php
 namespace Metronome;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -24,7 +25,7 @@ class MetronomeTestKernel extends Kernel
     {
         return [
 //            new KnpULoremIpsumBundle(),
-            new FrameworkBundle(),
+            new FrameworkBundle()
         ];
     }
 
@@ -73,6 +74,7 @@ class MetronomeTestKernel extends Kernel
      *
      * @param ContainerBuilder $container
      * @param LoaderInterface $loader
+     * @throws \Exception
      */
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
     {
@@ -81,6 +83,13 @@ class MetronomeTestKernel extends Kernel
         // if you are using symfony/dependency-injection 4.0+ as it's the default behavior
         $container->setParameter('container.autowiring.strict_mode', true);
         $container->setParameter('container.dumper.inline_class_loader', true);
-//        $confDir = $this->getProjectDir().'/config';
+
+        $confDir = $this->projectDir()."/config";
+        $loader->load($confDir.'/{packages}/*'.self::CONFIG_EXTS, 'glob');
+        $loader->load($confDir.'/{services}'.self::CONFIG_EXTS, 'glob');
+
+        $container->loadFromExtension("framework", array(
+            "secret" => "someSecret"
+        ));
     }
 }

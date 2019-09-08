@@ -142,7 +142,9 @@ class MetronomeBuilder
 
         $emMock = $this->buildEntityManager(null);
         // Database / Doctrine mock
+        $this->symfonyClient->getKernel()->boot();
         $this->symfonyClient->getContainer()->set(ServiceEnum::ENTITY_MANAGER, $emMock);
+        $this->symfonyClient->getContainer()->set("doctrine.orm.default_entity_manager", $emMock);
 
         // Symfony services mocking
         /** @var ServiceInjector $injectedService */
@@ -201,6 +203,18 @@ class MetronomeBuilder
             $this->symfonyClient->getContainer()->set(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
         }
 
+        $sessionMock = \Mockery::mock("Symfony\Component\HttpFoundation\Session\Session", array(
+            "start" => null,
+            "set" => null,
+            "save" => null,
+            "getId" => "sessionId",
+            "getName" => "sessionName",
+            "getUsageIndex" => 1,
+            "get" => "",
+            "remove" => null
+        ));
+        $this->symfonyClient->getContainer()->set("session", $sessionMock);
+
         // TODO Build $env with $testContainer
         $env = new MetronomeEnvironment($this->symfonyClient);
 //        $env->injectTestContainer($testContainer);
@@ -210,7 +224,7 @@ class MetronomeBuilder
 
     /**
      * @param string $repoClass
-     * @return \Doctrine\ORM\EntityManager|\Mockery\MockInterface
+     * @return \Doctrine\ORM\EntityManager|\Mockery\MockInterface|\Doctrine\ORM\EntityManagerInterface
      */
     public function buildEntityManager($repoClass = "") {
         $repoMock = null;

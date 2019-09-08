@@ -168,7 +168,7 @@ class MetronomeEnvironment
             $content = json_encode($body);
         }
 
-        $this->prepareSession($sessionMap);
+//        $this->prepareSession($sessionMap);
 
         $this->latestCrawler = $this->client->request($method, $uri, array(), $files, $headers, $content);
         // TODO: Analyze response and warn for errors, flashbag messages, etc.
