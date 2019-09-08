@@ -16,7 +16,6 @@ use Metronome\Injection\ServiceInjector;
 use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
-use mysql_xdevapi\Exception;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -60,6 +59,7 @@ class MetronomeBuilder
     //
     private $entityManagerLoadAll;
     private $entityManagerLoad;
+    /** @var PreparedController */
     private $preparedController;
 
     public function __construct(KernelBrowser $client = null, $useHTTPS = true) {
@@ -136,6 +136,46 @@ class MetronomeBuilder
 
     public function genericLoad($result) {
         $this->entityManagerLoad = $result;
+    }
+
+    public function setupController($controllerClass, $parameterDefinitions) {
+        $controller = $this->preparedController;
+        $this->preparedController = new PreparedController($controllerClass, $controller);
+    }
+
+    private function prepareController($controllerClass, $parameterDefinitions) {
+        $defNames = array();
+        /** @var MetronomeArgument $definition */
+        foreach($parameterDefinitions as $definition) {
+            if($definition instanceof MetronomeArgument == false) {
+                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
+            }
+            $defNames[$definition->getParameterName()] = $definition->getInjectedServiceId();
+        }
+
+        try {
+            $reflectionController = new \ReflectionClass($controllerClass);
+            $reflectionConstructor = $reflectionController->getConstructor();
+            $parameters = $reflectionConstructor->getParameters();
+
+            $arguments = array();
+            foreach($parameters as $parameter) {
+
+                if(array_key_exists($parameter->name, $defNames)) {
+                    $def = $defNames[$parameter->name];
+                    $arguments[$parameter->name] = $this->testClient->getContainer()->get($def);
+                } else {
+                    throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
+                }
+            }
+
+            var_dump($arguments);
+            $controllerInstance = $reflectionController->newInstanceArgs($arguments);
+            return $controllerInstance;
+        } catch (\ReflectionException $e) {
+            var_dump($e);
+        }
+        return null;
     }
 
     /**
@@ -224,6 +264,9 @@ class MetronomeBuilder
 //        );
 
         // TODO: Finally, inject controller that will be tested)
+        if($this->preparedController != null) {
+            $this->inject($this->preparedController->getControllerClassName(), $this->preparedController->getControllerInstance());
+        }
 
         // TODO Build $env with $testContainer
         $env = new MetronomeEnvironment($this->testClient);
