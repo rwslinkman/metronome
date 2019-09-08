@@ -13,10 +13,12 @@ use Metronome\Injection\ServiceInjector;
 use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
+use rwslinkman\Controller\ArticleManagementController;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 /**
  * Class MetronomeBuilder
@@ -211,9 +213,21 @@ class MetronomeBuilder
             "getName" => "sessionName",
             "getUsageIndex" => 1,
             "get" => "",
-            "remove" => null
+            "remove" => null,
+            "getFlashBag" => new FlashBag("someKey")
         ));
         $this->symfonyClient->getContainer()->set("session", $sessionMock);
+
+        // TODO: Make controllers injectable again
+//        $this->symfonyClient->getContainer()->set("rwslinkman\Controller\ArticleManagementController",
+//            new ArticleManagementController(
+//                $this->symfonyClient->getContainer()->get("rwslinkman.articlemanager"),
+//                $this->symfonyClient->getContainer()->get("rwslinkman.article_fetcher")
+//            )
+//        );
+
+        $templatingMock = MockBuilder::createTwigEnvironment();
+        $this->symfonyClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
 
         // TODO Build $env with $testContainer
         $env = new MetronomeEnvironment($this->symfonyClient);

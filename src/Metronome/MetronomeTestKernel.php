@@ -25,7 +25,8 @@ class MetronomeTestKernel extends Kernel
     {
         return [
 //            new KnpULoremIpsumBundle(),
-            new FrameworkBundle()
+            new FrameworkBundle(),
+            new DoctrineBundle()
         ];
     }
 
@@ -85,8 +86,8 @@ class MetronomeTestKernel extends Kernel
         $container->setParameter('container.dumper.inline_class_loader', true);
 
         $confDir = $this->projectDir()."/config";
-        $loader->load($confDir.'/{packages}/*'.self::CONFIG_EXTS, 'glob');
-        $loader->load($confDir.'/{services}'.self::CONFIG_EXTS, 'glob');
+//        $loader->load($confDir.'/{packages}/*'.self::CONFIG_EXTS, 'glob');
+//        $loader->load($confDir.'/{services}'.self::CONFIG_EXTS, 'glob');
 
         $container->loadFromExtension("framework", array(
             "secret" => "someSecret"
