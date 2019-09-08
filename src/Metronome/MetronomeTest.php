@@ -5,8 +5,9 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class MetronomeTest extends WebTestCase
 {
-    protected static function getKernelClass()
+    protected static function createClient(array $options = [], array $server = [])
     {
-        return MetronomeKernel::class;
+        $builder = new MetronomeTestClientBuilder();
+        return $builder->build();
     }
 }

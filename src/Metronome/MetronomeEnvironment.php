@@ -2,8 +2,6 @@
 namespace Metronome;
 
 use InvalidArgumentException;
-use Metronome\Injection\MetronomeArgument;
-use Metronome\Injection\PreparedController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\RouterInterface;

@@ -219,24 +219,12 @@ class MetronomeBuilder
         ));
         $this->inject("session", $sessionMock);
 
-        // TODO: Make controllers injectable again
-//        $this->symfonyClient->getContainer()->set("rwslinkman\Controller\ArticleManagementController",
-//            new ArticleManagementController(
-//                $this->symfonyClient->getContainer()->get("rwslinkman.articlemanager"),
-//                $this->symfonyClient->getContainer()->get("rwslinkman.article_fetcher")
-//            )
-//        );
-
-        // TODO: Finally, inject controller that will be tested)
         if($this->preparedController != null) {
             $controller = $this->prepareController($this->preparedController);
             $this->inject($this->preparedController->getControllerClassName(), $controller);
         }
 
-        // TODO Build $env with $testContainer
         $env = new MetronomeEnvironment($this->testClient);
-//        $env->injectTestContainer($testContainer);
-
         return $env;
     }
 
@@ -266,9 +254,7 @@ class MetronomeBuilder
                 }
             }
 
-            var_dump($arguments);
             $controllerInstance = $reflectionController->newInstanceArgs($arguments);
-            var_dump($controllerInstance);
             return $controllerInstance;
         } catch (\ReflectionException $e) {
             var_dump($e);
