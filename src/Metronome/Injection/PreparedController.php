@@ -5,17 +5,17 @@ namespace Metronome\Injection;
 class PreparedController
 {
     private $controllerClassName;
-    private $controllerInstance;
+    private $controllerArguments;
 
     /**
      * PreparedController constructor.
      * @param $controllerClassName
-     * @param $controllerMock
+     * @param $arguments
      */
-    public function __construct($controllerClassName, $controllerMock)
+    public function __construct($controllerClassName, $arguments)
     {
         $this->controllerClassName = $controllerClassName;
-        $this->controllerInstance = $controllerMock;
+        $this->controllerArguments = $arguments;
     }
 
     /**
@@ -29,8 +29,8 @@ class PreparedController
     /**
      * @return mixed
      */
-    public function getControllerInstance()
+    public function getControllerArguments()
     {
-        return $this->controllerInstance;
+        return $this->controllerArguments;
     }
 }

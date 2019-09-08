@@ -139,43 +139,7 @@ class MetronomeBuilder
     }
 
     public function setupController($controllerClass, $parameterDefinitions) {
-        $controller = $this->preparedController;
-        $this->preparedController = new PreparedController($controllerClass, $controller);
-    }
-
-    private function prepareController($controllerClass, $parameterDefinitions) {
-        $defNames = array();
-        /** @var MetronomeArgument $definition */
-        foreach($parameterDefinitions as $definition) {
-            if($definition instanceof MetronomeArgument == false) {
-                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
-            }
-            $defNames[$definition->getParameterName()] = $definition->getInjectedServiceId();
-        }
-
-        try {
-            $reflectionController = new \ReflectionClass($controllerClass);
-            $reflectionConstructor = $reflectionController->getConstructor();
-            $parameters = $reflectionConstructor->getParameters();
-
-            $arguments = array();
-            foreach($parameters as $parameter) {
-
-                if(array_key_exists($parameter->name, $defNames)) {
-                    $def = $defNames[$parameter->name];
-                    $arguments[$parameter->name] = $this->testClient->getContainer()->get($def);
-                } else {
-                    throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
-                }
-            }
-
-            var_dump($arguments);
-            $controllerInstance = $reflectionController->newInstanceArgs($arguments);
-            return $controllerInstance;
-        } catch (\ReflectionException $e) {
-            var_dump($e);
-        }
-        return null;
+        $this->preparedController = new PreparedController($controllerClass, $parameterDefinitions);
     }
 
     /**
@@ -265,7 +229,8 @@ class MetronomeBuilder
 
         // TODO: Finally, inject controller that will be tested)
         if($this->preparedController != null) {
-            $this->inject($this->preparedController->getControllerClassName(), $this->preparedController->getControllerInstance());
+            $controller = $this->prepareController($this->preparedController);
+            $this->inject($this->preparedController->getControllerClassName(), $controller);
         }
 
         // TODO Build $env with $testContainer
@@ -273,6 +238,42 @@ class MetronomeBuilder
 //        $env->injectTestContainer($testContainer);
 
         return $env;
+    }
+
+    private function prepareController(PreparedController $preparedController) {
+        $defNames = array();
+        /** @var MetronomeArgument $definition */
+        foreach($preparedController->getControllerArguments() as $definition) {
+            if($definition instanceof MetronomeArgument == false) {
+                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
+            }
+            $defNames[$definition->getParameterName()] = $definition->getInjectedServiceId();
+        }
+
+        try {
+            $reflectionController = new \ReflectionClass($preparedController->getControllerClassName());
+            $reflectionConstructor = $reflectionController->getConstructor();
+            $parameters = $reflectionConstructor->getParameters();
+
+            $arguments = array();
+            foreach($parameters as $parameter) {
+
+                if(array_key_exists($parameter->name, $defNames)) {
+                    $def = $defNames[$parameter->name];
+                    $arguments[$parameter->name] = $this->testClient->getContainer()->get($def);
+                } else {
+                    throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
+                }
+            }
+
+            var_dump($arguments);
+            $controllerInstance = $reflectionController->newInstanceArgs($arguments);
+            var_dump($controllerInstance);
+            return $controllerInstance;
+        } catch (\ReflectionException $e) {
+            var_dump($e);
+        }
+        return null;
     }
 
     /**
