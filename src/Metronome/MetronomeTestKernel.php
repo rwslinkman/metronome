@@ -1,6 +1,7 @@
 <?php
 namespace Metronome;
 
+use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class MetronomeTestKernel extends Kernel
 {
-    use MicroKernelTrait;
+    use MicroKernelTrait, TestKernelTrait;
 
     const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
