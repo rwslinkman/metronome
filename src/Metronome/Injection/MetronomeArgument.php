@@ -13,10 +13,10 @@ class MetronomeArgument
      * @param string $injectedServiceId
      * @param string $parameterName
      */
-    public function __construct(string $injectedServiceId, string $parameterName)
+    public function __construct(string $parameterName, string $injectedServiceId)
     {
-        $this->injectedServiceId = $injectedServiceId;
         $this->parameterName = $parameterName;
+        $this->injectedServiceId = $injectedServiceId;
     }
 
     /**

@@ -138,41 +138,6 @@ class MetronomeBuilder
         $this->entityManagerLoad = $result;
     }
 
-    public function prepareController($controllerClass, $parameterDefinitions) {
-        $defNames = array();
-        /** @var MetronomeArgument $definition */
-        foreach($parameterDefinitions as $definition) {
-            if($definition instanceof MetronomeArgument == false) {
-                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
-            }
-            $defNames[$definition->getParameterName()] = $definition->getInjectedServiceId();
-        }
-
-        try {
-            $reflectionController = new \ReflectionClass($controllerClass);
-            $reflectionConstructor = $reflectionController->getConstructor();
-            $parameters = $reflectionConstructor->getParameters();
-
-            $arguments = array();
-            foreach($parameters as $parameter) {
-                var_dump($parameter->name);
-
-                if(array_key_exists($parameter->name, $defNames)) {
-                    $def = $defNames[$parameter->name];
-                    $arguments[$parameter->name] = $this->testClient->getContainer()->get($def);
-                } else {
-                    throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
-                }
-            }
-
-            var_dump($arguments);
-            $controllerInstance = $reflectionController->newInstanceArgs($arguments);
-            $this->preparedController = new PreparedController();
-        } catch (\ReflectionException $e) {
-            var_dump($e);
-        }
-    }
-
     /**
      * @return MetronomeEnvironment
      */

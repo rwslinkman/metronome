@@ -2,7 +2,9 @@
 namespace Metronome;
 
 use InvalidArgumentException;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Metronome\Injection\MetronomeArgument;
+use Metronome\Injection\PreparedController;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\BrowserKit\Cookie;
@@ -15,13 +17,13 @@ use Symfony\Component\BrowserKit\Cookie;
 class MetronomeEnvironment
 {
     const HEADER_PREFIX = "HTTP_";
-    /** @var Client */
+    /** @var KernelBrowser */
     private $client;
     /** @var Crawler */
     private $latestCrawler;
 
     /* package */
-    function __construct(Client $c)
+    function __construct(KernelBrowser $c)
     {
         $this->client = $c;
     }
@@ -137,7 +139,7 @@ class MetronomeEnvironment
     }
 
     /**
-     * @return Client
+     * @return KernelBrowser
      */
     public function getClient()
     {
@@ -150,6 +152,42 @@ class MetronomeEnvironment
     public function getLatestCrawler()
     {
         return $this->latestCrawler;
+    }
+
+    public function prepareController($controllerClass, $parameterDefinitions) {
+        $defNames = array();
+        /** @var MetronomeArgument $definition */
+        foreach($parameterDefinitions as $definition) {
+            if($definition instanceof MetronomeArgument == false) {
+                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
+            }
+            $defNames[$definition->getParameterName()] = $definition->getInjectedServiceId();
+        }
+
+        try {
+            $reflectionController = new \ReflectionClass($controllerClass);
+            $reflectionConstructor = $reflectionController->getConstructor();
+            $parameters = $reflectionConstructor->getParameters();
+
+            $arguments = array();
+            foreach($parameters as $parameter) {
+                var_dump($parameter->name);
+
+                if(array_key_exists($parameter->name, $defNames)) {
+                    $def = $defNames[$parameter->name];
+                    $arguments[$parameter->name] = $this->client->getContainer()->get($def);
+                } else {
+                    throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
+                }
+            }
+
+            var_dump($arguments);
+            $controllerInstance = $reflectionController->newInstanceArgs($arguments);
+
+            $this->client->getContainer()->set($controllerClass, $controllerInstance);
+        } catch (\ReflectionException $e) {
+            var_dump($e);
+        }
     }
 
     /**
