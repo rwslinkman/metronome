@@ -18,7 +18,6 @@ use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
@@ -62,8 +61,6 @@ class MetronomeBuilder
     private $entityManagerLoad;
     /** @var PreparedController */
     private $preparedController;
-    /** @var ParameterBag */
-    private $parameterBag;
 
     public function __construct(KernelBrowser $client = null, $useHTTPS = true) {
         if($client != null){
@@ -122,13 +119,6 @@ class MetronomeBuilder
      */
     public function injectForm(MetronomeFormData $formData) {
         array_push($this->injectedForms, $formData);
-    }
-
-    public function injectParameter($param, $value) {
-        if($this->parameterBag == null) {
-            $this->parameterBag = new ParameterBag();
-        }
-        $this->parameterBag->set($param, $value);
     }
 
     /**
@@ -228,10 +218,6 @@ class MetronomeBuilder
             "getFlashBag" => new FlashBag("someKey")
         ));
         $this->inject("session", $sessionMock);
-
-        if($this->parameterBag != null) {
-            $this->inject("parameter_bag", $this->parameterBag);
-        }
 
         if($this->preparedController != null) {
             $controller = $this->prepareController($this->preparedController);
