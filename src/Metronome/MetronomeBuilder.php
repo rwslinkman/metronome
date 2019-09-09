@@ -249,7 +249,7 @@ class MetronomeBuilder
             $reflectionController = new \ReflectionClass($preparedController->getControllerClassName());
             $reflectionConstructor = $reflectionController->getConstructor();
 
-            if($reflectionController != null) {
+            if($reflectionConstructor != null) {
                 $parameters = $reflectionConstructor->getParameters();
 
                 $arguments = array();
