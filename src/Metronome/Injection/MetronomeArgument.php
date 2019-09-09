@@ -3,28 +3,20 @@ namespace Metronome\Injection;
 
 class MetronomeArgument
 {
-    /** @var string */
-    private $injectedServiceId;
+    /** @var mixed */
+    private $injectedArgument;
     /** @var string */
     private $parameterName;
 
     /**
      * MetronomeArgument constructor.
-     * @param string $injectedServiceId
      * @param string $parameterName
+     * @param mixed $injectedArgument
      */
-    public function __construct(string $parameterName, string $injectedServiceId)
+    public function __construct(string $parameterName, $injectedArgument)
     {
-        $this->injectedServiceId = $injectedServiceId;
         $this->parameterName = $parameterName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInjectedServiceId(): string
-    {
-        return $this->injectedServiceId;
+        $this->injectedArgument = $injectedArgument;
     }
 
     /**
@@ -33,5 +25,13 @@ class MetronomeArgument
     public function getParameterName(): string
     {
         return $this->parameterName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInjectedArgument()
+    {
+        return $this->injectedArgument;
     }
 }

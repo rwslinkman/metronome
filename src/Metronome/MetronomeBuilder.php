@@ -8,6 +8,7 @@ use \InvalidArgumentException;
 use Metronome\Form\MetronomeFormData;
 use Metronome\Injection\MetronomeArgument;
 use Metronome\Injection\MetronomeLoginData;
+use Metronome\Injection\MetronomeServiceArgument;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\MockCreator;
 use Metronome\Injection\PreparedController;
@@ -242,13 +243,19 @@ class MetronomeBuilder
     }
 
     private function prepareController(PreparedController $preparedController) {
-        $defNames = array();
+        $argumentObjects = array();
         /** @var MetronomeArgument $definition */
         foreach($preparedController->getControllerArguments() as $definition) {
             if($definition instanceof MetronomeArgument == false) {
                 throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
             }
-            $defNames[$definition->getParameterName()] = $definition->getInjectedServiceId();
+
+            $argument = $definition->getInjectedArgument();
+            if($definition instanceof MetronomeServiceArgument) {
+                $argument = $this->testClient->getContainer()->get($definition->getServiceId());
+            }
+
+            $argumentObjects[$definition->getParameterName()] = $argument;
         }
 
         try {
@@ -258,10 +265,8 @@ class MetronomeBuilder
 
             $arguments = array();
             foreach($parameters as $parameter) {
-
-                if(array_key_exists($parameter->name, $defNames)) {
-                    $def = $defNames[$parameter->name];
-                    $arguments[$parameter->name] = $this->testClient->getContainer()->get($def);
+                if(array_key_exists($parameter->name, $argumentObjects)) {
+                    $arguments[$parameter->name] = $argumentObjects[$parameter->name];
                 } else {
                     throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
                 }
