@@ -138,7 +138,7 @@ class MetronomeBuilder
         $this->entityManagerLoad = $result;
     }
 
-    public function setupController($controllerClass, $parameterDefinitions) {
+    public function setupController($controllerClass, $parameterDefinitions = array()) {
         $this->preparedController = new PreparedController($controllerClass, $parameterDefinitions);
     }
 
@@ -245,20 +245,28 @@ class MetronomeBuilder
         }
 
         try {
+            $controllerInstance = null;
             $reflectionController = new \ReflectionClass($preparedController->getControllerClassName());
             $reflectionConstructor = $reflectionController->getConstructor();
-            $parameters = $reflectionConstructor->getParameters();
 
-            $arguments = array();
-            foreach($parameters as $parameter) {
-                if(array_key_exists($parameter->name, $argumentObjects)) {
-                    $arguments[$parameter->name] = $argumentObjects[$parameter->name];
-                } else {
-                    throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
+            if($reflectionController != null) {
+                $parameters = $reflectionConstructor->getParameters();
+
+                $arguments = array();
+                foreach($parameters as $parameter) {
+                    if(array_key_exists($parameter->name, $argumentObjects)) {
+                        $arguments[$parameter->name] = $argumentObjects[$parameter->name];
+                    } else {
+                        throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
+                    }
                 }
+
+                $controllerInstance = $reflectionController->newInstanceArgs($arguments);
+            } else {
+                // No constructor defined
+                $controllerInstance = $reflectionController->newInstanceWithoutConstructor();
             }
 
-            $controllerInstance = $reflectionController->newInstanceArgs($arguments);
             return $controllerInstance;
         } catch (\ReflectionException $e) {
             var_dump($e);
