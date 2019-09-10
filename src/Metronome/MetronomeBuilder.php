@@ -17,6 +17,7 @@ use Metronome\Injection\ServiceInjector;
 use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -221,6 +222,7 @@ class MetronomeBuilder
 
         if($this->preparedController != null) {
             $controller = $this->prepareController($this->preparedController);
+            $controller->setContainer($this->testClient->getContainer());
             $this->inject($this->preparedController->getControllerClassName(), $controller);
         }
 
@@ -228,6 +230,10 @@ class MetronomeBuilder
         return $env;
     }
 
+    /**
+     * @param PreparedController $preparedController
+     * @return AbstractController|null
+     */
     private function prepareController(PreparedController $preparedController) {
         $argumentObjects = array();
         /** @var MetronomeArgument $definition */
@@ -267,6 +273,7 @@ class MetronomeBuilder
                 $controllerInstance = $reflectionController->newInstanceWithoutConstructor();
             }
 
+            /** @noinspection PhpIncompatibleReturnTypeInspection */
             return $controllerInstance;
         } catch (\ReflectionException $e) {
             var_dump($e);
