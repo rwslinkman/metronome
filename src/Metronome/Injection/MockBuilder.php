@@ -167,14 +167,14 @@ class MockBuilder
 
     public static function createTwigEnvironment() {
         $html = "Test environment prevented template of being rendered";
-        $templateMock = \Mockery::mock('\Twig_Template', array(
+        $templateMock = \Mockery::mock('\Twig\Template', array(
             "render" => $html
         ));
-        $loaderMock = \Mockery::mock('\Twig_LoaderInterface', array(
+        $loaderMock = \Mockery::mock('Twig\Loader\LoaderInterface', array(
             "exists" => true
         ));
 
-        $twigMock = \Mockery::mock(Environment::class, array(
+        $twigMock = \Mockery::mock('\Twig\Environment', array(
             "disableDebug" => null,
             "getLoader" => $loaderMock,
             "loadTemplate" => $templateMock,

@@ -173,9 +173,6 @@ class MetronomeBuilder
             // TODO This rendering can be improved, it's only used when mocking forms
             $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
             $this->inject(ServiceEnum::FORM_FACTORY, $formMock);
-            // TODO This mock can be removed when FormView is succesfully mocked
-            $templatingMock = MockBuilder::createTwigEnvironment();
-            $this->inject(ServiceEnum::TEMPLATING, $templatingMock);
         }
 
         if(!empty($this->injectedForms)) {
