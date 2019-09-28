@@ -99,8 +99,11 @@ class MetronomeTestKernel extends Kernel
         /** @var MetronomeDefinition $metronomeDefinition */
         foreach($this->definitions as $metronomeDefinition) {
             $injectionClass = $metronomeDefinition->getInjectionClass();
-            $definitionId = ($metronomeDefinition->getInjectionInterface() == null) ? $injectionClass : null;
+            $injectionInterface = $metronomeDefinition->getInjectionInterface();
+            $definitionId = ($injectionInterface == null) ? $injectionClass : $injectionInterface;
+
             $definition = new Definition($injectionClass);
+            $definition->setPublic(true);
             $container->setDefinition($definitionId, $definition);
         }
 
