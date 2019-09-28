@@ -4,22 +4,28 @@ namespace Metronome\Injection;
 
 class PreparedController
 {
+    /** @var string */
     private $controllerClassName;
-    private $controllerArguments;
+    /** @var array|MetronomeArgument */
+    private $constructorArguments;
+    /** @var array|MetronomeFunctionArgumentDefinition */
+    private $functionArgumentDefinition;
 
     /**
      * PreparedController constructor.
      * @param $controllerClassName
-     * @param $arguments
+     * @param $constructorArguments
+     * @param $functionArgumentDefinition
      */
-    public function __construct($controllerClassName, $arguments)
+    public function __construct($controllerClassName, $constructorArguments, $functionArgumentDefinition)
     {
         $this->controllerClassName = $controllerClassName;
-        $this->controllerArguments = $arguments;
+        $this->constructorArguments = $constructorArguments;
+        $this->functionArgumentDefinition = $functionArgumentDefinition;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getControllerClassName()
     {
@@ -27,10 +33,20 @@ class PreparedController
     }
 
     /**
-     * @return mixed
+     * @return array|MetronomeArgument
      */
-    public function getControllerArguments()
+    public function getConstructorArguments()
     {
-        return $this->controllerArguments;
+        return $this->constructorArguments;
     }
+
+    /**
+     * @return array|MetronomeFunctionArgumentDefinition
+     */
+    public function getFunctionArgumentDefinition()
+    {
+        return $this->functionArgumentDefinition;
+    }
+
+
 }

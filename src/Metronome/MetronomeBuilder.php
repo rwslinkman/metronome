@@ -1,31 +1,18 @@
 <?php
 namespace Metronome;
 
-use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityRepository;
 use \InvalidArgumentException;
 use Metronome\Form\MetronomeFormData;
-use Metronome\Injection\MetronomeArgument;
 use Metronome\Injection\MetronomeLoginData;
-use Metronome\Injection\MetronomeServiceArgument;
 use Metronome\Injection\MockBuilder;
 use Metronome\Injection\MockCreator;
-use Metronome\Injection\PreparedController;
-use Metronome\Injection\RepoInjector;
-use Metronome\Injection\ServiceInjector;
 use Metronome\Util\MetronomeAuthenticationException;
 use Metronome\Util\ServiceEnum;
-use Mockery\MockInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
-use Symfony\Component\DependencyInjection\Definition;
-
 
 /**
  * Class MetronomeBuilder
@@ -37,36 +24,12 @@ class MetronomeBuilder
 {
     /** @var KernelBrowser */
     private $testClient;
-    /** @var  EntityRepository */
-    private $repository;
     /** @var MetronomeLoginData */
     private $loginData;
-    /** @var ServiceInjector[] */
-    private $injectedServices;
-    /** @var RepoInjector[] */
-    private $injectedRepos;
-    /** @var array */
-    private $injections;
-    /**
-     * @var  boolean
-     * @deprecated
-     */
-    private $shouldFailFormLogin;
     /** @var AuthenticationException */
     private $authException;
-    /**
-     * @var  boolean
-     * @deprecated
-     */
-    private $mockSymfonyForms;
-    /** @var  MetronomeFormData */
-    private $testFormData;
     /** @var array|MetronomeFormData[] */
     private $injectedForms;
-    private $entityManagerLoadAll;
-    private $entityManagerLoad;
-    /** @var PreparedController */
-    private $preparedController;
 
     public function __construct(KernelBrowser $client = null, $useHTTPS = true) {
         if($client != null){
@@ -74,30 +37,9 @@ class MetronomeBuilder
             $client->setServerParameter("HTTPS", $useHTTPS);
         }
         $this->testClient = $client;
-        $this->repository = null;
         $this->loginData = null;
-        $this->injectedServices = array();
-        $this->injectedRepos = array();
         $this->injectedForms = array();
-        $this->injections = array();
-        $this->shouldFailFormLogin = false;
         $this->authException = null;
-        $this->mockSymfonyForms = false;
-        $this->entityManagerLoadAll = null;
-        $this->entityManagerLoad = null;
-        $this->preparedController = null;
-    }
-
-    public function injectService(ServiceInjector $serviceInjector) {
-        array_push($this->injectedServices, $serviceInjector);
-    }
-
-    public function injectRepo(RepoInjector $repoInjector) {
-        array_push($this->injectedRepos, $repoInjector);
-    }
-
-    public function injectObject($serviceName, $anObject) {
-        $this->injections[$serviceName] = $anObject;
     }
 
     public function requiresLogin(MetronomeLoginData $injected = null) {
@@ -117,13 +59,6 @@ class MetronomeBuilder
     }
 
     /**
-     * @deprecated use MetronomeBuilder->injectAuthenticationError();
-     */
-    public function shouldFailFormLogin() {
-        $this->shouldFailFormLogin = true;
-    }
-
-    /**
      * Allows to inject mocked form to use in your Controller tests
      * When calling this multiple times with different MetronomeFormData, they will be returned in the order they were injected.
      * @param MetronomeFormData $formData
@@ -133,69 +68,26 @@ class MetronomeBuilder
     }
 
     /**
-     * @deprecated Replaced by MetronomeBuilder->injectForm() that can handle multiple forms in 1 controller
-     * @param MetronomeFormData $formData
-     */
-    public function mockSymfonyForms(MetronomeFormData $formData) {
-        $this->testFormData = $formData;
-        $this->mockSymfonyForms = true;
-    }
-
-    public function genericLoadAll($result) {
-        $this->entityManagerLoadAll = $result;
-    }
-
-    public function genericLoad($result) {
-        $this->entityManagerLoad = $result;
-    }
-
-    public function setupController($controllerClass, $parameterDefinitions = array()) {
-        $this->preparedController = new PreparedController($controllerClass, $parameterDefinitions);
-    }
-
-    /**
      * @return MetronomeEnvironment
      */
     public function build() {
         $this->verifyState();
 
-        $emMock = $this->buildEntityManager(null);
+        $doctrineMockBuilder = new MetronomeDoctrineMockBuilder();
+        $emMock = $doctrineMockBuilder->buildEntityManager(null);
         // Database / Doctrine mock
         $this->testClient->getKernel()->boot();
         $this->inject(ServiceEnum::ENTITY_MANAGER, $emMock);
         $this->inject("doctrine.orm.default_entity_manager", $emMock);
 
-        // Symfony services mocking
-        /** @var ServiceInjector $injectedService */
-        foreach ($this->injectedServices as $injectedService) {
-            $injectedServiceMock = MockCreator::mock($injectedService->serviceClass(), $injectedService->inject());
-            $this->inject($injectedService->serviceName(), $injectedServiceMock);
-        }
-
-        foreach($this->injections as $serviceName => $injection) {
-            $this->inject($serviceName, $injection);
-        }
-
-        // Symfony templating engine
-        if($this->mockSymfonyForms) {
-            // Test data or default values
-            $mockIsSubmitted = ($this->testFormData == null) ? false : $this->testFormData->isSubmitted();
-            $mockIsValid = ($this->testFormData == null) ? false : $this->testFormData->isValid();
-            $mockGetData = ($this->testFormData == null) ? array() : $this->testFormData->getSubmittedData();
-            $mockErrors = ($this->testFormData == null) ? array() : $this->testFormData->getErrors();
-
-            // TODO This rendering can be improved, it's only used when mocking forms
-            $formMock = MockBuilder::createFormBuilderMock($mockIsSubmitted, $mockIsValid, $mockGetData, $mockErrors);
-            $this->inject(ServiceEnum::FORM_FACTORY, $formMock);
-        }
 
         if(!empty($this->injectedForms)) {
             $formMock = MockBuilder::createFormFactoryMock($this->injectedForms);
             // TODO This rendering can be improved, it's only used when mocking forms
             $this->inject(ServiceEnum::FORM_FACTORY, $formMock);
         }
-        $templatingMock = MockBuilder::createTwigEnvironment();
-        $this->testClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
+        $twigMock = MockBuilder::createTwigEnvironment();
+        $this->inject(ServiceEnum::TWIG, $twigMock);
 
         // Logged in status mock
         if($this->loginData != null) {
@@ -210,7 +102,7 @@ class MetronomeBuilder
         }
 
         // Login form mock
-        if($this->shouldFailFormLogin || ($this->authException != null)) {
+        if($this->authException != null) {
             if($this->authException == null) {
                 $this->authException = new MetronomeAuthenticationException("Invalid Credentials");
             }
@@ -233,124 +125,13 @@ class MetronomeBuilder
 
         $this->inject("tokenStorage", MockBuilder::createTokenStorageMock());
 
-        if($this->preparedController != null) {
-            $controller = $this->prepareController($this->preparedController);
-            $controller->setContainer($this->testClient->getContainer());
-            $this->inject($this->preparedController->getControllerClassName(), $controller);
-        }
-
         $env = new MetronomeEnvironment($this->testClient);
         return $env;
     }
 
-    /**
-     * @param PreparedController $preparedController
-     * @return AbstractController|null
-     */
-    private function prepareController(PreparedController $preparedController) {
-        $argumentObjects = array();
-        /** @var MetronomeArgument $definition */
-        foreach($preparedController->getControllerArguments() as $definition) {
-            if($definition instanceof MetronomeArgument == false) {
-                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
-            }
-
-            $argument = $definition->getInjectedArgument();
-            if($definition instanceof MetronomeServiceArgument) {
-                $argument = $this->testClient->getContainer()->get($definition->getServiceId());
-            }
-
-            $argumentObjects[$definition->getParameterName()] = $argument;
-        }
-
-        try {
-            $controllerInstance = null;
-            $reflectionController = new \ReflectionClass($preparedController->getControllerClassName());
-            $reflectionConstructor = $reflectionController->getConstructor();
-
-            if($reflectionConstructor != null) {
-                $parameters = $reflectionConstructor->getParameters();
-
-                $arguments = array();
-                foreach($parameters as $parameter) {
-                    if(array_key_exists($parameter->name, $argumentObjects)) {
-                        $arguments[$parameter->name] = $argumentObjects[$parameter->name];
-                    } else {
-                        throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
-                    }
-                }
-
-                $controllerInstance = $reflectionController->newInstanceArgs($arguments);
-            } else {
-                // No constructor defined
-                $controllerInstance = $reflectionController->newInstanceWithoutConstructor();
-            }
-
-            /** @noinspection PhpIncompatibleReturnTypeInspection */
-            return $controllerInstance;
-        } catch (\ReflectionException $e) {
-            var_dump($e);
-        }
-        return null;
-    }
-
-    /**
-     * @param string $repoClass
-     * @return \Doctrine\ORM\EntityManager|\Mockery\MockInterface|\Doctrine\ORM\EntityManagerInterface
-     */
-    public function buildEntityManager($repoClass = "") {
-        $repoMock = null;
-
-        // TODO Show warning when no repo injected and not internal usage
-        /** @var RepoInjector $repo */
-        foreach ($this->injectedRepos as $repo) {
-            if($repo->repositoryName() === $repoClass) {
-                $repoMock = MockCreator::mock($repo->repositoryClass(), $repo->inject());
-                break;
-            }
-        }
-        return MockBuilder::createMockEntityManager($repoMock, null, null, null, $this->entityManagerLoad, $this->entityManagerLoadAll);
-    }
-
-    /**
-     * @param null $getReference
-     * @return ReferenceRepository|MockInterface
-     */
-    public function buildFixtureReferenceRepoMock($getReference = null) {
-        $mockRR = MockCreator::mock('\Doctrine\Common\DataFixtures\ReferenceRepository', array(
-            "getReference" => $getReference,
-            "hasReference" => $getReference != null,
-            "setReference" => null,
-            "addReference" => null
-        ));
-        return $mockRR;
-    }
-
-    /**
-     * @param string $entityClass The name of the Entity to mock
-     * @return ManagerRegistry|MockInterface
-     */
-    public function buildManagerRegistryMock($entityClass = null) {
-        //
-        $mockEM = MockBuilder::createMockEntityManager(null, null, null, null,
-            $this->entityManagerLoad, $this->entityManagerLoadAll, $entityClass);
-        //
-        $mockMR = MockCreator::mock('Doctrine\Common\Persistence\ManagerRegistry', array(
-            "getManagerForClass" => $mockEM,
-        ));
-        return $mockMR;
-    }
-
-    private function verifyState()
-    {
-        if ($this->shouldFailFormLogin && $this->loginData) {
-            throw new InvalidArgumentException("Cannot use shouldFailFormLogin() and requiresLogin() simultaneously");
-        }
+    private function verifyState() {
         if ($this->authException && $this->loginData) {
             throw new InvalidArgumentException("Cannot use injectAuthenticationError() and requiresLogin() simultaneously");
-        }
-        if (!empty($this->injectedForms) && $this->mockSymfonyForms) {
-            throw new InvalidArgumentException("Cannot use injectForm() and mockSymfonyForms() simutaneously");
         }
     }
 

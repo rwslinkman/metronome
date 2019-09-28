@@ -3,8 +3,14 @@ namespace Metronome;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Exception;
+use Metronome\Injection\MetronomeArgument;
+use Metronome\Injection\MetronomeFunctionArgumentDefinition;
+use Metronome\Injection\MetronomeServiceArgument;
 use Metronome\Injection\MockCreator;
+use Metronome\Injection\PreparedController;
+use Metronome\Injection\ServiceInjector;
 use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Exception\LoaderLoadException;
@@ -23,17 +29,20 @@ class MetronomeTestKernel extends Kernel
 
     private $projectDir;
     private $additionalBundles;
-    private $controllerClass;
+    /** @var PreparedController  */
+    private $preparedController;
+    private $injections;
 
-    public function __construct($projectDir = null, $additionalBundles = array(), $controllerClass = null)
+    public function __construct($projectDir = null, $additionalBundles = array(), PreparedController $controllerClass = null, $containerInjections = array())
     {
         parent::__construct('test', true);
         $this->projectDir = $projectDir;
-        $this->additionalBundles = array_merge(array(
+        $this->additionalBundles = array_merge($additionalBundles, array(
             new FrameworkBundle(),
             new DoctrineBundle()
-        ), $additionalBundles);
-        $this->controllerClass = $controllerClass;
+        ));
+        $this->preparedController = $controllerClass;
+        $this->injections = $containerInjections;
 
     }
     public function registerBundles()
@@ -94,13 +103,31 @@ class MetronomeTestKernel extends Kernel
             "secret" => "someSecret"
         ));
 
-        $tkiDef = new Definition("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage");
-        $container->setDefinition("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface", $tkiDef);
+        if($this->preparedController != null) {
+            /** @var MetronomeFunctionArgumentDefinition $functionArgumentDefinition */
+            foreach($this->preparedController->getFunctionArgumentDefinition() as $functionArgumentDefinition) {
+                $definitionInterface = $functionArgumentDefinition->getInjectionInterface();
+                if($definitionInterface == null) {
+                    $definitionInterface = $functionArgumentDefinition->getInjectionClass();
+                }
+                $definition = new Definition($functionArgumentDefinition->getInjectionClass());
+                $container->setDefinition($definitionInterface, $definition);
+            }
 
-        if($this->controllerClass != null) {
-            $definition = new Definition($this->controllerClass);
+            // Controller definition
+            $definition = new Definition($this->preparedController->getControllerClassName());
             $definition->addTag("controller.service_arguments");
-            $container->setDefinition($this->controllerClass, $definition);
+            $container->setDefinition($this->preparedController->getControllerClassName(), $definition);
+
+            // Controller instantiation and injection into container
+            $controller = $this->prepareController($this->preparedController);
+            $controller->setContainer($container);
+            $this->inject($this->preparedController->getControllerClassName(), $controller);
+        }
+
+        // Inject services
+        foreach($this->injections as $serviceName => $injection) {
+            $this->inject($serviceName, $injection);
         }
     }
 
@@ -109,5 +136,60 @@ class MetronomeTestKernel extends Kernel
             return $this->projectDir;
         }
         return $this->getProjectDir()."/../../..";
+    }
+
+    private function inject($serviceId, $mock) {
+        $this->getContainer()->set($serviceId, $mock);
+    }
+
+    /**
+     * @param PreparedController $preparedController
+     * @return AbstractController|null
+     */
+    private function prepareController(PreparedController $preparedController) {
+        $argumentObjects = array();
+        /** @var MetronomeArgument $definition */
+        foreach($preparedController->getConstructorArguments() as $definition) {
+            if($definition instanceof MetronomeArgument == false) {
+                throw new \InvalidArgumentException("Argument must be of type MetronomeArgument");
+            }
+
+            $argument = $definition->getInjectedArgument();
+            if($definition instanceof MetronomeServiceArgument) {
+                $argument = $this->getContainer()->get($definition->getServiceId());
+            }
+
+            $argumentObjects[$definition->getParameterName()] = $argument;
+        }
+
+        try {
+            $controllerInstance = null;
+            $reflectionController = new \ReflectionClass($preparedController->getControllerClassName());
+            $reflectionConstructor = $reflectionController->getConstructor();
+
+            if($reflectionConstructor != null) {
+                $parameters = $reflectionConstructor->getParameters();
+
+                $arguments = array();
+                foreach($parameters as $parameter) {
+                    if(array_key_exists($parameter->name, $argumentObjects)) {
+                        $arguments[$parameter->name] = $argumentObjects[$parameter->name];
+                    } else {
+                        throw new \InvalidArgumentException(sprintf("Please provide parameter '%s'", $parameter->name));
+                    }
+                }
+
+                $controllerInstance = $reflectionController->newInstanceArgs($arguments);
+            } else {
+                // No constructor defined
+                $controllerInstance = $reflectionController->newInstanceWithoutConstructor();
+            }
+
+            /** @noinspection PhpIncompatibleReturnTypeInspection */
+            return $controllerInstance;
+        } catch (\ReflectionException $e) {
+            var_dump($e);
+        }
+        return null;
     }
 }
