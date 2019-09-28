@@ -3,6 +3,7 @@ namespace Metronome;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Exception;
+use Metronome\Injection\MockCreator;
 use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -10,6 +11,7 @@ use Symfony\Component\Config\Exception\LoaderLoadException;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
@@ -21,8 +23,9 @@ class MetronomeTestKernel extends Kernel
 
     private $projectDir;
     private $additionalBundles;
+    private $controllerClass;
 
-    public function __construct($projectDir = null, $additionalBundles = array())
+    public function __construct($projectDir = null, $additionalBundles = array(), $controllerClass = null)
     {
         parent::__construct('test', true);
         $this->projectDir = $projectDir;
@@ -30,6 +33,7 @@ class MetronomeTestKernel extends Kernel
             new FrameworkBundle(),
             new DoctrineBundle()
         ), $additionalBundles);
+        $this->controllerClass = $controllerClass;
 
     }
     public function registerBundles()
@@ -89,6 +93,15 @@ class MetronomeTestKernel extends Kernel
         $container->loadFromExtension("framework", array(
             "secret" => "someSecret"
         ));
+
+        $tkiDef = new Definition("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage");
+        $container->setDefinition("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface", $tkiDef);
+
+        if($this->controllerClass != null) {
+            $definition = new Definition($this->controllerClass);
+            $definition->addTag("controller.service_arguments");
+            $container->setDefinition($this->controllerClass, $definition);
+        }
     }
 
     private function projectDir() {

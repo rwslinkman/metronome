@@ -7,6 +7,7 @@ class MetronomeTestClientBuilder
 {
     private $projectDir;
     private $bundles;
+    private $controller;
 
     public function __construct() {
         $this->projectDir = null;
@@ -28,8 +29,13 @@ class MetronomeTestClientBuilder
         return $this;
     }
 
+    public function controller($className) {
+        $this->controller = $className;
+        return $this;
+    }
+
     public function build() {
-        $kernel = new MetronomeTestKernel($this->projectDir, $this->bundles);
+        $kernel = new MetronomeTestKernel($this->projectDir, $this->bundles, $this->controller);
         return new KernelBrowser($kernel);
     }
 }

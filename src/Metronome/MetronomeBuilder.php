@@ -19,10 +19,13 @@ use Metronome\Util\ServiceEnum;
 use Mockery\MockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\DependencyInjection\Definition;
+
 
 /**
  * Class MetronomeBuilder
@@ -42,6 +45,8 @@ class MetronomeBuilder
     private $injectedServices;
     /** @var RepoInjector[] */
     private $injectedRepos;
+    /** @var array */
+    private $injections;
     /**
      * @var  boolean
      * @deprecated
@@ -74,6 +79,7 @@ class MetronomeBuilder
         $this->injectedServices = array();
         $this->injectedRepos = array();
         $this->injectedForms = array();
+        $this->injections = array();
         $this->shouldFailFormLogin = false;
         $this->authException = null;
         $this->mockSymfonyForms = false;
@@ -88,6 +94,10 @@ class MetronomeBuilder
 
     public function injectRepo(RepoInjector $repoInjector) {
         array_push($this->injectedRepos, $repoInjector);
+    }
+
+    public function injectObject($serviceName, $anObject) {
+        $this->injections[$serviceName] = $anObject;
     }
 
     public function requiresLogin(MetronomeLoginData $injected = null) {
@@ -162,6 +172,10 @@ class MetronomeBuilder
             $this->inject($injectedService->serviceName(), $injectedServiceMock);
         }
 
+        foreach($this->injections as $serviceName => $injection) {
+            $this->inject($serviceName, $injection);
+        }
+
         // Symfony templating engine
         if($this->mockSymfonyForms) {
             // Test data or default values
@@ -216,6 +230,8 @@ class MetronomeBuilder
             "getFlashBag" => new FlashBag("someKey")
         ));
         $this->inject("session", $sessionMock);
+
+        $this->inject("tokenStorage", MockBuilder::createTokenStorageMock());
 
         if($this->preparedController != null) {
             $controller = $this->prepareController($this->preparedController);
