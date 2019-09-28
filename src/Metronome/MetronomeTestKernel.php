@@ -3,6 +3,7 @@ namespace Metronome;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Exception;
+use Metronome\Injection\MetronomeDefinition;
 use Metronome\Injection\MockCreator;
 use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
@@ -24,8 +25,9 @@ class MetronomeTestKernel extends Kernel
     private $projectDir;
     private $additionalBundles;
     private $controllerClass;
+    private $definitions;
 
-    public function __construct($projectDir = null, $additionalBundles = array(), $controllerClass = null)
+    public function __construct($projectDir = null, $additionalBundles = array(), $controllerClass = null, $definitions = array())
     {
         parent::__construct('test', true);
         $this->projectDir = $projectDir;
@@ -34,7 +36,7 @@ class MetronomeTestKernel extends Kernel
             new DoctrineBundle()
         ), $additionalBundles);
         $this->controllerClass = $controllerClass;
-
+        $this->definitions = $definitions;
     }
     public function registerBundles()
     {
@@ -94,8 +96,13 @@ class MetronomeTestKernel extends Kernel
             "secret" => "someSecret"
         ));
 
-        $tkiDef = new Definition("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage");
-        $container->setDefinition("Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface", $tkiDef);
+        /** @var MetronomeDefinition $metronomeDefinition */
+        foreach($this->definitions as $metronomeDefinition) {
+            $injectionClass = $metronomeDefinition->getInjectionClass();
+            $definitionId = ($metronomeDefinition->getInjectionInterface() == null) ? $injectionClass : null;
+            $definition = new Definition($injectionClass);
+            $container->setDefinition($definitionId, $definition);
+        }
 
         if($this->controllerClass != null) {
             $definition = new Definition($this->controllerClass);
