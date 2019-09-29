@@ -1,8 +1,9 @@
 <?php
 namespace Metronome\Util;
 
-
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
@@ -15,12 +16,14 @@ class MetronomeSession implements SessionInterface
     private $id;
     private $name;
     private $attributes;
+    private $flashBag;
 
     public function __construct($attributes = array()) {
         $this->started = false;
         $this->id = "";
         $this->name = "";
         $this->attributes = $attributes;
+        $this->flashBag = new FlashBag();
     }
 
     /**
@@ -245,5 +248,13 @@ class MetronomeSession implements SessionInterface
     public function getMetadataBag()
     {
         return null;
+    }
+
+    /**
+     * @return FlashBagInterface
+     */
+    public function getFlashBag()
+    {
+        return $this->flashBag;
     }
 }

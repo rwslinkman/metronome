@@ -71,7 +71,10 @@ class MetronomeBuilder
         $this->injections[$serviceName] = $anObject;
     }
 
-    public function injectSession(MetronomeSession $session) {
+    public function injectSession(MetronomeSession $session = null) {
+        if($session == null) {
+            $session = new MetronomeSession();
+        }
         $this->injectedSession = $session;
     }
 
