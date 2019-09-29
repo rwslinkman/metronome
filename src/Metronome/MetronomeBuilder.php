@@ -11,6 +11,7 @@ use Metronome\Injection\MockCreator;
 use Metronome\Injection\PreparedController;
 use Metronome\Injection\ServiceInjector;
 use Metronome\Util\MetronomeAuthenticationException;
+use Metronome\Util\MetronomeSession;
 use Metronome\Util\ServiceEnum;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -40,6 +41,8 @@ class MetronomeBuilder
     private $injectedForms;
     /** @var PreparedController */
     private $preparedController;
+    /** @var MetronomeSession */
+    private $injectedSession;
 
     public function __construct(KernelBrowser $client = null, $useHTTPS = true) {
         if($client != null){
@@ -66,6 +69,26 @@ class MetronomeBuilder
 
     public function injectObject($serviceName, $anObject) {
         $this->injections[$serviceName] = $anObject;
+    }
+
+    public function injectSession(MetronomeSession $session) {
+        $this->injectedSession = $session;
+    }
+
+    /** @deprecated  */
+    public function injectDefaultSession() {
+        $sessionMock = MockCreator::mock("Symfony\Component\HttpFoundation\Session\Session", array(
+            "start" => null,
+            "set" => null,
+            "save" => null,
+            "getId" => "sessionId",
+            "getName" => "sessionName",
+            "getUsageIndex" => 1,
+            "get" => "",
+            "remove" => null,
+            "getFlashBag" => new FlashBag("someKey")
+        ));
+        $this->injectedSession = $sessionMock;
     }
 
     public function requiresLogin(MetronomeLoginData $injected = null) {
@@ -143,18 +166,9 @@ class MetronomeBuilder
             $this->inject(ServiceEnum::SECURITY_AUTH_UTILS, $authMock);
         }
 
-        $sessionMock = MockCreator::mock("Symfony\Component\HttpFoundation\Session\Session", array(
-            "start" => null,
-            "set" => null,
-            "save" => null,
-            "getId" => "sessionId",
-            "getName" => "sessionName",
-            "getUsageIndex" => 1,
-            "get" => "",
-            "remove" => null,
-            "getFlashBag" => new FlashBag("someKey")
-        ));
-        $this->inject("session", $sessionMock);
+        if($this->injectedSession != null) {
+            $this->inject("session", $this->injectedSession);
+        }
 
         if($this->preparedController != null) {
             $controller = $this->prepareController($this->preparedController);
