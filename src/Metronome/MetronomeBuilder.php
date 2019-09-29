@@ -75,22 +75,6 @@ class MetronomeBuilder
         $this->injectedSession = $session;
     }
 
-    /** @deprecated  */
-    public function injectDefaultSession() {
-        $sessionMock = MockCreator::mock("Symfony\Component\HttpFoundation\Session\Session", array(
-            "start" => null,
-            "set" => null,
-            "save" => null,
-            "getId" => "sessionId",
-            "getName" => "sessionName",
-            "getUsageIndex" => 1,
-            "get" => "",
-            "remove" => null,
-            "getFlashBag" => new FlashBag("someKey")
-        ));
-        $this->injectedSession = $sessionMock;
-    }
-
     public function requiresLogin(MetronomeLoginData $injected = null) {
         if($injected == null) {
             $injected = MetronomeLoginData::defaultLoginData();

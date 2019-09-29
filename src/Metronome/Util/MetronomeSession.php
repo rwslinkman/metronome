@@ -146,11 +146,14 @@ class MetronomeSession implements SessionInterface
      */
     public function get($name, $default = null)
     {
-        $value = $this->attributes[$name];
-        if($value == null) {
-            return $default;
+        if(array_key_exists($name, $this->attributes)) {
+            $value = $this->attributes[$name];
+            if($value == null) {
+                return $default;
+            }
+            return $value;
         }
-        return value;
+        return $default;
     }
 
     /**
