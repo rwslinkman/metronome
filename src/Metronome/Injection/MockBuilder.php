@@ -36,16 +36,16 @@ class MockBuilder
         $entityName = null)
     {
         //
-        $connMock = \Mockery::mock('\Doctrine\DBAL\Connection', array(
+        $connMock = MockCreator::mock('\Doctrine\DBAL\Connection', array(
             'exec' => null
         ));
 
-        $qbMock = \Mockery::mock('\Doctrine\ORM\QueryBuilder', array(
+        $qbMock = MockCreator::mock('\Doctrine\ORM\QueryBuilder', array(
             'expr' => new Expr(),
             'select' => null
         ));
 
-        $emMock = \Mockery::mock('\Doctrine\ORM\EntityManager', array(
+        $emMock = MockCreator::mock('\Doctrine\ORM\EntityManager', array(
             'getRepository' => $getRepository,
             'persist' => $persist,
             'flush' => $flush,
@@ -60,12 +60,12 @@ class MockBuilder
     }
 
     private static function createMockUnitOfWork($load = null, $loadAll = null) {
-        $bep = \Mockery::mock('\Doctrine\ORM\Persisters\Entity\BasicEntityPersister', array(
+        $bep = MockCreator::mock('\Doctrine\ORM\Persisters\Entity\BasicEntityPersister', array(
             "load" => $load,
             "loadAll" => $loadAll
         ));
 
-        $uowMock = \Mockery::mock('\Doctrine\ORM\UnitOfWork', array(
+        $uowMock = MockCreator::mock('\Doctrine\ORM\UnitOfWork', array(
             "__construct" => null,
             "getEntityPersister" => $bep,
         ));
@@ -77,7 +77,7 @@ class MockBuilder
      * @return MockInterface|AbstractGuardAuthenticator
      */
     public static function createMockUserProvider(PostAuthenticationGuardToken $token) {
-        $userProviderMock = \Mockery::mock('\Metronome\Injection\MetronomeAuthenticator',
+        $userProviderMock = MockCreator::mock('\Metronome\Injection\MetronomeAuthenticator',
             array(
                 'getUser' => $token->getUser(),
                 'getCredentials' => (object)array('token' => 'aToken'),
@@ -95,7 +95,7 @@ class MockBuilder
      * @return AuthenticationUtils|\Mockery\MockInterface
      */
     public static function createAuthUtilsMock($getLastAuthenticationError) {
-        $utilMock = \Mockery::mock('Symfony\Component\Security\Http\Authentication\AuthenticationUtils', array(
+        $utilMock = MockCreator::mock('Symfony\Component\Security\Http\Authentication\AuthenticationUtils', array(
             "getLastAuthenticationError" => $getLastAuthenticationError
         ));
         return $utilMock;
@@ -110,7 +110,7 @@ class MockBuilder
      * @return MockInterface
      */
     public static function createFormBuilderMock($isSubmitted = false, $isValid = false, $getData = array(), $errors = array()) {
-        $formMock = \Mockery::mock('\Symfony\Component\Form\Form', array(
+        $formMock = MockCreator::mock('\Symfony\Component\Form\Form', array(
             "handleRequest" => null,
             "isSubmitted" => $isSubmitted,
             "getData" => $getData,
@@ -118,11 +118,11 @@ class MockBuilder
             "isValid" => $isValid,
             "getErrors" => $errors
         ));
-        $builderMock = \Mockery::mock('\Symfony\Component\Form\FormBuilderInterface', array(
+        $builderMock = MockCreator::mock('\Symfony\Component\Form\FormBuilderInterface', array(
             'getForm' => $formMock
         ));
 
-        $fbMock = \Mockery::mock('\Symfony\Component\Form\FormFactory', array(
+        $fbMock = MockCreator::mock('\Symfony\Component\Form\FormFactory', array(
             "create" => $formMock,
             "createNamedBuilder" => $builderMock
         ));
@@ -141,11 +141,11 @@ class MockBuilder
             array_push($mockForms, $mockForm);
         }
 
-        $builderMock = \Mockery::mock('\Symfony\Component\Form\FormBuilderInterface', array(
+        $builderMock = MockCreator::mock('\Symfony\Component\Form\FormBuilderInterface', array(
             'getForm' => $mockForms[0]
         ));
 
-        $ffMock = \Mockery::mock(FormFactory::class, array(
+        $ffMock = MockCreator::mock(FormFactory::class, array(
             "createNamedBuilder" => $builderMock
         ));
 
@@ -154,7 +154,7 @@ class MockBuilder
     }
 
     private static function createFormMock($isValid, $getData, $errors) {
-        $formMock = \Mockery::mock('\Symfony\Component\Form\Form', array(
+        $formMock = MockCreator::mock('\Symfony\Component\Form\Form', array(
             "handleRequest" => null,
             "isSubmitted" => true,
             "getData" => $getData,
@@ -167,14 +167,14 @@ class MockBuilder
 
     public static function createTwigEnvironment() {
         $html = "Test environment prevented template of being rendered";
-        $templateMock = \Mockery::mock('\Twig\Template', array(
+        $templateMock = MockCreator::mock('\Twig\Template', array(
             "render" => $html
         ));
-        $loaderMock = \Mockery::mock('Twig\Loader\LoaderInterface', array(
+        $loaderMock = MockCreator::mock('Twig\Loader\LoaderInterface', array(
             "exists" => true
         ));
 
-        $twigMock = \Mockery::mock('\Twig\Environment', array(
+        $twigMock = MockCreator::mock('\Twig\Environment', array(
             "disableDebug" => null,
             "getLoader" => $loaderMock,
             "loadTemplate" => $templateMock,
@@ -188,7 +188,7 @@ class MockBuilder
      * @return MockInterface|\Symfony\Bundle\TwigBundle\TwigEngine
      */
     public static function createTwigTemplatingMock(){
-        $twigMock = \Mockery::mock('\Symfony\Bundle\TwigBundle\TwigEngine', array(
+        $twigMock = MockCreator::mock('\Symfony\Bundle\TwigBundle\TwigEngine', array(
             "renderResponse" => new Response(""),
             "render" => ""
         ));
@@ -202,14 +202,14 @@ class MockBuilder
      */
     public static function createTwigMock() {
         $html = "Test environment prevented template of being rendered";
-        $templateMock = \Mockery::mock('\Twig_Template', array(
+        $templateMock = MockCreator::mock('\Twig_Template', array(
             "render" => $html
         ));
-        $loaderMock = \Mockery::mock('\Twig_LoaderInterface', array(
+        $loaderMock = MockCreator::mock('\Twig_LoaderInterface', array(
             "exists" => true
         ));
 
-        $twigMock = \Mockery::mock('\Twig_Environment', array(
+        $twigMock = MockCreator::mock('\Twig_Environment', array(
             "disableDebug" => null,
             "getLoader" => $loaderMock,
             "loadTemplate" => $templateMock,
@@ -219,7 +219,7 @@ class MockBuilder
     }
 
     public static function createRouterMock() {
-        $routerMock = \Mockery::mock('\Symfony\Component\Routing\Router', array(
+        $routerMock = MockCreator::mock('\Symfony\Component\Routing\Router', array(
             "getRouteCollection" => array(),
             "generate" => "http://some/url",
         ));
@@ -228,7 +228,7 @@ class MockBuilder
 
     public static function createMockFileSystem($exists = true)
     {
-        $mockFS = \Mockery::mock('\Symfony\Component\Filesystem\Filesystem', array(
+        $mockFS = MockCreator::mock('\Symfony\Component\Filesystem\Filesystem', array(
             "exists" => $exists,
             "mkdir" => null,
         ));
@@ -236,7 +236,7 @@ class MockBuilder
     }
 
     public static function createTokenStorageMock(PostAuthenticationGuardToken $token = null) {
-        $storageMock = \Mockery::mock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage', array(
+        $storageMock = MockCreator::mock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage', array(
             'getToken' => $token,
             'setToken' => null
         ));

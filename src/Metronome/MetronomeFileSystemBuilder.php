@@ -1,6 +1,7 @@
 <?php
 namespace Metronome;
 
+use Metronome\Injection\MockCreator;
 use Metronome\Util\MetronomeTestFile;
 use Metronome\Util\TestFileBrowser;
 use Symfony\Component\Filesystem\Filesystem;
@@ -46,8 +47,7 @@ class MetronomeFileSystemBuilder
      * @return \Mockery\MockInterface|Filesystem
      */
     public function buildFileSystem() {
-        //
-        $mockFS = \Mockery::mock('\Symfony\Component\Filesystem\Filesystem', array(
+        $mockFS = MockCreator::mock('\Symfony\Component\Filesystem\Filesystem', array(
             "exists" => $this->platformDirExists,
             "mkdir" => null,
             "remove" => null

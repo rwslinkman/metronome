@@ -2,6 +2,7 @@
 namespace Metronome;
 
 use InvalidArgumentException;
+use Metronome\Injection\MockCreator;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\RouterInterface;
@@ -129,7 +130,7 @@ class MetronomeEnvironment
      */
     public static function createRouterMock()
     {
-        $routerMock = \Mockery::mock('\Symfony\Component\Routing\Router', array(
+        $routerMock = MockCreator::mock('\Symfony\Component\Routing\Router', array(
             "getRouteCollection" => array(),
             "generate" => "http://some/url"
         ));

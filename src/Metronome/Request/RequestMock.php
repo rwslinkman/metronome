@@ -1,6 +1,7 @@
 <?php
 namespace Metronome\Request;
 
+use Metronome\Injection\MockCreator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -18,12 +19,12 @@ class RequestMock
      */
     public static function createRequest($loginFormData = array(), $getPathInfo = "/login")
     {
-        $sessionMock = \Mockery::mock('Symfony\Component\HttpFoundation\Session\Storage\MetadataBag\Session', array(
+        $sessionMock = MockCreator::mock('Symfony\Component\HttpFoundation\Session\Storage\MetadataBag\Session', array(
             "set" => null
         ));
 
         $formBag = new ParameterBag($loginFormData);
-        $mockRequest = \Mockery::mock('\Symfony\Component\HttpFoundation\Request', array(
+        $mockRequest = MockCreator::mock('\Symfony\Component\HttpFoundation\Request', array(
                 "getPathInfo" => $getPathInfo,
                 "isMethod" => true,
                 "getSession" => $sessionMock

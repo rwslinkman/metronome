@@ -32,8 +32,6 @@ class MetronomeBuilder
     private $testClient;
     /** @var MetronomeLoginData */
     private $loginData;
-    /** @var ServiceInjector[] */
-    private $injectedServices;
     /** @var array */
     private $injections;
     /** @var AuthenticationException */
@@ -50,7 +48,6 @@ class MetronomeBuilder
         }
         $this->testClient = $client;
         $this->loginData = null;
-        $this->injectedServices = array();
         $this->injectedForms = array();
         $this->injections = array();
         $this->authException = null;
@@ -60,7 +57,6 @@ class MetronomeBuilder
     public function injectService(ServiceInjector $serviceInjector) {
         $injectedServiceMock = MockCreator::mock($serviceInjector->serviceClass(), $serviceInjector->inject());
         $this->injectObject($serviceInjector->serviceName(), $injectedServiceMock);
-        array_push($this->injectedServices, $serviceInjector);
     }
 
     public function injectObject($serviceName, $anObject) {
@@ -122,6 +118,7 @@ class MetronomeBuilder
         $this->testClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
 
         // Logged in status mock
+        $token = null;
         if($this->loginData != null) {
             $mockUser = $this->loginData->getUser();
             $token = new PostAuthenticationGuardToken($mockUser, "dev", $mockUser->getRoles());
