@@ -58,6 +58,8 @@ class MetronomeBuilder
     }
 
     public function injectService(ServiceInjector $serviceInjector) {
+        $injectedServiceMock = MockCreator::mock($serviceInjector->serviceClass(), $serviceInjector->inject());
+        $this->injectObject($serviceInjector->serviceName(), $injectedServiceMock);
         array_push($this->injectedServices, $serviceInjector);
     }
 
@@ -107,13 +109,6 @@ class MetronomeBuilder
         $this->inject(ServiceEnum::ENTITY_MANAGER, $emMock);
         $this->inject("doctrine.orm.default_entity_manager", $emMock);
 
-        // Symfony services mocking
-        /** @var ServiceInjector $injectedService */
-        foreach ($this->injectedServices as $injectedService) {
-            $injectedServiceMock = MockCreator::mock($injectedService->serviceClass(), $injectedService->inject());
-            $this->inject($injectedService->serviceName(), $injectedServiceMock);
-        }
-
         foreach($this->injections as $serviceName => $injection) {
             $this->inject($serviceName, $injection);
         }
@@ -133,10 +128,9 @@ class MetronomeBuilder
             foreach ($this->loginData->getTokenAttributes() as $attribute => $value) {
                 $token->setAttribute($attribute, $value);
             }
-
-            $mockTokenStorage = MockBuilder::createTokenStorageMock($token);
-            $this->inject(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
         }
+        $mockTokenStorage = MockBuilder::createTokenStorageMock($token);
+        $this->inject(ServiceEnum::SECURITY_TOKEN_STORAGE, $mockTokenStorage);
 
         // Login form mock
         if($this->authException != null) {
@@ -159,8 +153,6 @@ class MetronomeBuilder
             "getFlashBag" => new FlashBag("someKey")
         ));
         $this->inject("session", $sessionMock);
-
-        $this->inject("tokenStorage", MockBuilder::createTokenStorageMock());
 
         if($this->preparedController != null) {
             $controller = $this->prepareController($this->preparedController);

@@ -20,46 +20,4 @@ class MetronomeBuilderTest extends TestCase
         // Mainly to assert during tests that class references are correct
         $this->assertNotNull($this->builder);
     }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function test_givenBuilder_andShouldFailLoginFormCalled_whenRequiresLogin_andBuild_thenShouldThrowException() {
-        $this->builder->shouldFailFormLogin();
-
-        $this->builder->requiresLogin();
-        $this->builder->build();
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function test_givenBuilder_andRequiresLoginCalled_whenShouldFailLoginForm_andBuild_thenShouldThrowException() {
-        $this->builder->requiresLogin();
-
-        $this->builder->shouldFailFormLogin();
-        $this->builder->build();
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function test_givenBuilder_andRequiresLoginCalled_whenInjectAuthenticationError_andBuild_thenShouldThrowException() {
-        $this->builder->requiresLogin();
-
-        $this->builder->injectAuthenticationError();
-        $this->builder->build();
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function test_givenBuilder_andShouldFailLoginFormCalled_whenInjectAuthenticationError_andBuild_thenShouldNotThrowException() {
-        $this->builder->shouldFailFormLogin();
-
-        $this->builder->requiresLogin();
-        $this->builder->build();
-
-        $this->assertTrue(true); // To keep test/assert ratio equal
-    }
 }

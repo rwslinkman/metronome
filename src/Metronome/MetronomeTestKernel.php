@@ -24,10 +24,9 @@ class MetronomeTestKernel extends Kernel
 
     private $projectDir;
     private $additionalBundles;
-    private $controllerClass;
     private $definitions;
 
-    public function __construct($projectDir = null, $additionalBundles = array(), $controllerClass = null, $definitions = array())
+    public function __construct($projectDir = null, $additionalBundles = array(), $definitions = array())
     {
         parent::__construct('test', true);
         $this->projectDir = $projectDir;
@@ -35,7 +34,6 @@ class MetronomeTestKernel extends Kernel
             new FrameworkBundle(),
             new DoctrineBundle()
         ), $additionalBundles);
-        $this->controllerClass = $controllerClass;
         $this->definitions = $definitions;
     }
     public function registerBundles()
@@ -96,21 +94,8 @@ class MetronomeTestKernel extends Kernel
             "secret" => "someSecret"
         ));
 
-        /** @var MetronomeDefinition $metronomeDefinition */
-        foreach($this->definitions as $metronomeDefinition) {
-            $injectionClass = $metronomeDefinition->getInjectionClass();
-            $injectionInterface = $metronomeDefinition->getInjectionInterface();
-            $definitionId = ($injectionInterface == null) ? $injectionClass : $injectionInterface;
-
-            $definition = new Definition($injectionClass);
-            $definition->setPublic(true);
+        foreach($this->definitions as $definitionId => $definition) {
             $container->setDefinition($definitionId, $definition);
-        }
-
-        if($this->controllerClass != null) {
-            $definition = new Definition($this->controllerClass);
-            $definition->addTag("controller.service_arguments");
-            $container->setDefinition($this->controllerClass, $definition);
         }
     }
 
