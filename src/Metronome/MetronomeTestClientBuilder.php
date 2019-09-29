@@ -51,6 +51,7 @@ class MetronomeTestClientBuilder
 
         $definition = new Definition($injectionClass);
         $definition->setPublic(true);
+        $definition->setTags($metronomeDefinition->getInjectionTags());
         $this->pushDefinition($definitionId, $definition);
         return $this;
     }

@@ -7,11 +7,14 @@ class MetronomeDefinition
     private $injectionClass;
     /** @var string */
     private $injectionInterface;
+    /** @var array */
+    private $injectionTags;
 
-    public function __construct($injectionClass, $injectionInterface = null)
+    public function __construct($injectionClass, $injectionInterface = null, $tags = array())
     {
         $this->injectionClass = $injectionClass;
         $this->injectionInterface = $injectionInterface;
+        $this->injectionTags = $tags;
     }
 
     /**
@@ -30,4 +33,11 @@ class MetronomeDefinition
         return $this->injectionInterface;
     }
 
+    /**
+     * @return array
+     */
+    public function getInjectionTags()
+    {
+        return $this->injectionTags;
+    }
 }

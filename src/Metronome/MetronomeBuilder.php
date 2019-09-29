@@ -59,6 +59,11 @@ class MetronomeBuilder
         $this->injectObject($serviceInjector->serviceName(), $injectedServiceMock);
     }
 
+    public function injectNamedService($serviceName, ServiceInjector $serviceInjector) {
+        $injectedServiceMock = MockCreator::mock($serviceInjector->serviceClass(), $serviceInjector->inject());
+        $this->injectObject($serviceName, $injectedServiceMock);
+    }
+
     public function injectObject($serviceName, $anObject) {
         $this->injections[$serviceName] = $anObject;
     }
