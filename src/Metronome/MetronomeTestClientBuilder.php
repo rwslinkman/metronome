@@ -47,11 +47,22 @@ class MetronomeTestClientBuilder
     public function addDefinition(MetronomeDefinition $metronomeDefinition) {
         $injectionClass = $metronomeDefinition->getInjectionClass();
         $injectionInterface = $metronomeDefinition->getInjectionInterface();
-        $definitionId = ($injectionInterface == null) ? $injectionClass : $injectionInterface;
+        if($injectionInterface == null) {
+            // Replace when empty
+            $definitionId = $injectionClass;
+        } else {
+            // Add extra
+            $classDefinition = new MetronomeDefinition($injectionClass);
+            $this->addDefinition($classDefinition);
+            // Continue normally
+            $definitionId = $injectionInterface;
+        }
 
         $definition = new Definition($injectionClass);
         $definition->setPublic(true);
-        $definition->setTags($metronomeDefinition->getInjectionTags());
+        foreach($metronomeDefinition->getInjectionTags() as $injectionTag) {
+            $definition->addTag($injectionTag);
+        }
         $this->pushDefinition($definitionId, $definition);
         return $this;
     }
