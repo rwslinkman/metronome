@@ -3,5 +3,6 @@ php:
   - 7.1.9
 before_script:
   - sudo apt install ant
+  - composer install
 script:
   - ant full-build
