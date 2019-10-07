@@ -43,7 +43,7 @@ You can inject your own Kernel, or use the ready-made MetronomeKernel.
 After setting this up, you inject services, repositories and other objects you need.
 Calling the `build` function returns a `MetronomeEnvironment` that allows to fire `GET`, `POST`, and `PUT` to your application.   
 
-Creating an environment for your application with no mocks (Doctrine excluded: 
+Creating an environment for your application with no mocks (Doctrine excluded): 
 ```php
 $clientBuilder = new MetronomeTestClientBuilder();
 $builder = new MetronomeBuilder($clientBuilder->build());
@@ -58,7 +58,6 @@ $this->assertEquals(200, $response->getStatusCode());
 Setup a `MetronomeEnvironment` using the `MetronomeBuilder`.   
 The most basic test returns a `Response` from `Symfony\HttpFoundation`.   
 Make sure your test extents `WebTestCase` to make use of Symfony's `Client` for HTTP requests.   
-
 
 ```php
 class IndexControllerTest extends WebTestCase
@@ -77,18 +76,15 @@ class IndexControllerTest extends WebTestCase
         /** @var MetronomeEnvironment */
         $environment = $builder->build();
         
-        $response = $environment->get("/");
-        $this->assertEquals(200, $response->getStatusCode());
-
         /** @var Response */
-        $result = $testEnv->get("/");
+        $response = $environment->get("/");
         
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }
 ```
 
-If you have custom services configured in Symfony's `services.yaml`, then you can mock those during tests.
+If you have custom services configured in Symfony's `services.yaml`, then you can mock those during tests.   
 This is convenient when testing `Controllers`.
 You can make use of the `MetronomeDynamicMockBuilder` that easily mocks classes.   
 
@@ -123,7 +119,8 @@ class IndexControllerTest extends WebTestCase
 
 For more static components that you inject as services, you can use `ServiceInjector` to return basic values.  
 Optionally, add some setters to set your desired outcome for the mocked function.   
-`MetronomeBuilder` has a special `injectService()` function to accept these type of injections.   
+`MetronomeBuilder` has a special `injectService()` function to accept these type of injections.
+   
 ```php
 class ProductServiceInjector implements ServiceInjector { 
     private $loadAllProducts;
@@ -153,6 +150,7 @@ class ProductServiceInjector implements ServiceInjector {
     {
         return '\rwslinkman\Service\ProductService';
     }
+}
 ```
 
 ### Arguments and Definitions
@@ -324,7 +322,8 @@ $formData = $formBuilder->build();
 
 Using the built form data is done easily by injecting it into the `MetronomeBuilder`.
 ```php
-$envBuilder = new MetronomeBuilder(static::createClient());
+$clientBuilder = new MetronomeTestClientBuilder();
+$testEnvBuilder = new MetronomeBuilder($clientBuilder->build());
 $envBuilder->injectForm($formData);
 
 $testEnv = $this->envBuilder->build();
@@ -345,7 +344,8 @@ This can help you verify the outcome of your GET or POST request even better.
 
 In the example below, assume that the page has no log messages to show and reports this in a flash message.
 ```php
-$testEnvBuilder = new MetronomeBuilder(static::createClient());
+$clientBuilder = new MetronomeTestClientBuilder();
+$testEnvBuilder = new MetronomeBuilder($clientBuilder->build());
 $testEnv = $testEnvBuilder->build();
 
 $testEnv->get("/admin/logs");
