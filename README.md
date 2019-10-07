@@ -1,18 +1,27 @@
-# Metronome
-> Metronome is a lightweight test utility for Symfony 3 and Symfony 4 (PHP) applications.  
-> It helps you orchestrate the tests for the Symfony in your hands, like a metronome should.
+# Metronome ![](https://travis-ci.com/rwslinkman/metronome.svg?branch=master)
+> Metronome is a lightweight test utility for Symfony 3 and Symfony 4 (PHP) applications.   
+> It provides a steady base for easy mocking and injection of the Symfony Container.     
+> Let Metronome help you orchestrate  the Symfony in your hands!      
 
-Using the `MetronomeBuilder` you can:
+Metronome aims to make functional testing easier for Symfony projects.   
+It creates a custom `Kernel` and `Container` and injects everything you need for a fully set-up Symfony environment.   
+You application is automatically loaded using Symfony's `WebTestCase` and `KernelBrowser` client.   
+
+Metronome provides several builders to aid in your tests:   
+- `MetronomeBuilder`
+- `MetronomeDoctrineMockBuilder`
+- `MetronomeFileSystemBuilder`
+
+Using the Metronome you can:
 - Build a `MetronomeEnvironment` that sends GET and POST requests to test your `Controller` classes
 - Build a mocked `EntityManager` to test classes that have database interactions
 - Build a mocked `ReferenceRepository` to test your `Fixture` classes
 - Build a mocked `ManagerRegistry` to test your `EntityRepository` classes  
 - Inject `MetronomeLoginData` to bypass your `GuardAuthenticator` protection
 - Mock `Symfony Forms`  using the `MetronomeFormDataBuilder` and `MetronomeEntityFormDataBuilder`
-- Make use of Symfony's `Crawler` to see if your HTML is properly rendered
 - Verify the contents of the Symfony `FlashBag`
 
-## Installing Metronome
+## Installation
 You can install Metronome using `composer` to get the package from Packagist.
 
 ```
@@ -20,10 +29,31 @@ composer require-dev rwslinkman/metronome
 ```
 
 Metronome is not needed in the production environment, since it is a test utility.   
-The latest version is `1.4.0`.      
+The latest version is `2.0.0`.         
+Older versions may work for Symfony 3 projects, but this may prove difficult and is not supported.   
 For bleeding edge development, point to the `dev-develop` or `dev-master` version.
 
-## Testing a Controller
+## Usage
+Metronome is used in combination with PHPUnit and the Symfony `WebTestCase`, which extends PHPUnit's `TestCase`.   
+
+### MetronomeBuilder
+With the `MetronomeBuilder`, you can create a fully set-up environment of your application.   
+The connection to the database, `EntityManager`, is automatically mocked.   
+You can inject your own Kernel, or use the ready-made MetronomeKernel.      
+After setting this up, you inject services, repositories and other objects you need.
+Calling the `build` function returns a `MetronomeEnvironment` that allows to fire `GET`, `POST`, and `PUT` to your application.   
+
+Creating an environment for your application with no mocks (Doctrine excluded: 
+```php
+$clientBuilder = new MetronomeTestClientBuilder();
+$builder = new MetronomeBuilder($clientBuilder->build());
+$environment = $builder->build();
+
+$response = $environment->get("/");
+$this->assertEquals(200, $response->getStatusCode());
+```
+
+### Testing a Controller
 
 Setup a `MetronomeEnvironment` using the `MetronomeBuilder`.   
 The most basic test returns a `Response` from `Symfony\HttpFoundation`.   
@@ -37,43 +67,49 @@ class IndexControllerTest extends WebTestCase
     private $testEnvBuilder;
     
     public function setUp() {
-        $this->testEnvBuilder = new MetronomeBuilder(static::createClient());
+        $clientBuilder = new MetronomeTestClientBuilder();
+        $clientBulder->controller(IndexController::class);
+        $this->testEnvBuilder = new MetronomeBuilder($clientBuilder->build());
+        $this->testEnvBuilder->setupController(IndexController::class);
     }
 
     public function test_givenApp_whenGetIndex_thenShouldReturnOK() {
         /** @var MetronomeEnvironment */
-        $testEnv = $this->testEnvBuilder->build();
+        $environment = $builder->build();
+        
+        $response = $environment->get("/");
+        $this->assertEquals(200, $response->getStatusCode());
 
         /** @var Response */
         $result = $testEnv->get("/");
         
         $this->assertEquals(200, $result->getStatusCode());
-        // var_dump($result->getContent()); // Usefull for debugging!
     }
 }
 ```
 
 If you have custom services configured in Symfony's `services.yaml`, then you can mock those during tests.
 This is convenient when testing `Controllers`.
+You can make use of the `MetronomeDynamicMockBuilder` that easily mocks classes.   
 
 ```php
 class IndexControllerTest extends WebTestCase
 {
     /** @var MetronomeBuilder */
     private $testEnvBuilder;
-    /** @var ProductServiceInjector */
-    private $injector
     
     public function setUp() {
-        $this->testEnvBuilder = new MetronomeBuilder(static::createClient());
-        
-        $this->injector = new ProductServiceInjector();
-        $this->testEnvBuilder->injectService($this->injector);
+        $clientBuilder = new MetronomeTestClientBuilder();
+        $clientBulder->controller(IndexController::class);
+        $this->testEnvBuilder = new MetronomeBuilder($clientBuilder->build());
+        $this->testEnvBuilder->setupController(IndexController::class);
     }
     
-    public function test_givenApp_whenGetIndex_andEmptyProductList_thenShouldReturnOK() {
-        // Inject the desired return value before building the environment.
-        $this->injector->mockLoadAllProducts(array());
+    public function test_givenApp_whenGetIndex_andEmptyList_thenShouldReturnOK() {
+        $mockBuilder = new MetronomeDynamicMockBuilder(UserService::class);
+        $mockBuilder->method("getUsers", array());
+        $this->testEnvBuilder->injectObject("myapp.user_service", $mockBuilder->build());
+        
         /** @var MetronomeEnvironment */
         $testEnv = $this->testEnvBuilder->build();
 
@@ -85,9 +121,9 @@ class IndexControllerTest extends WebTestCase
 }
 ```
 
-You can use Metronome to mock your services by supplying a `ServiceInjector`.   
-This overrides your service in the container.   
-Add some setters to set your desired outcome for the mocked function.
+For more static components that you inject as services, you can use `ServiceInjector` to return basic values.  
+Optionally, add some setters to set your desired outcome for the mocked function.   
+`MetronomeBuilder` has a special `injectService()` function to accept these type of injections.   
 ```php
 class ProductServiceInjector implements ServiceInjector { 
     private $loadAllProducts;
@@ -119,11 +155,41 @@ class ProductServiceInjector implements ServiceInjector {
     }
 ```
 
-## Mocking the database and EntityManager
-Classes that use the `Doctrine EntityManager` can be tested using Metronome.   
-You can inject `RepoInjector` classes to mock your `EntityRepository`. 
+### Arguments and Definitions
+When testing `Controllers`, you will need to deal with constructor arguments that are injected by Symfony.   
+Metronome provides the `MetronomeArgument` that injects a mock directory into the Controller contructor when Symfony needs it.   
+Provide the parameter name and the service you want to inject and call `setupController` on your `MetronomeBuilder`.
+Metronome provides a small catalog with premade Arguments.      
+
 ```php
-$metronomeBuilder = new MetronomeBuilder();
+$clientBuilder = new MetronomeTestClientBuilder();
+$clientBuilder->controller(ProjectController::class);
+$this->builder = new MetronomeBuilder($clientBuilder->build());
+$this->builder->setupController(ProjectController::class, array(
+    new MetronomeServiceArgument("projectsService", "my_app.projects_service"),
+    new MetronomeFormFactoryArgument("formFactory"),
+    new MetronomeSessionArgument("session")
+));
+```
+
+Note: the services must be injected in the Container when building a `MetronomeEnvironment`.   
+
+Symfony might want to load system services earlier than calling the Controller.   
+In that case, add a `MetronomeDefinition` to the test client:
+```
+$clientBuilder = new MetronomeTestClientBuilder();
+$clientBuilder->controller(ProjectController::class);
+$clientBuilder->addDefinition(new MetronomeDefinition(TokenStorage::class, TokenStorageInterface::class));
+$clientBuilder->addDefinition(new MetronomeDefinition(AuthenticationUtils::class));
+```
+
+### Mocking the database and EntityManager
+Classes that use the `Doctrine EntityManager` can be tested using Metronome.   
+These are usually the services in your Symfony application.   
+You can inject `RepoInjector` classes to mock your `EntityRepository`.   
+ 
+```php
+$metronomeBuilder = new MetronomeDoctrineMockBuilder();
 $metronomeBuilder->injectRepo(new ProductRepoInjector());
 $entityManagerMock = $metronomeBuilder->buildEntityManager(ProductRepository::class);
 
@@ -165,7 +231,7 @@ class ProductRepoInjector implements RepoInjector {
 }
 ```
 
-## Testing Fixtures
+### Testing Fixtures
 Fixtures are part of the `Doctrine FixtureBundle`.   
 Metronome can be used to verify some of the `Fixture` behaviour.
 
@@ -175,7 +241,7 @@ use PHPUnit\Framework\TestCase;
 class MyFixtureTest extends TestCase
 {
     public function test_givenFixture_whenLoad_shouldAlwaysPersist() {
-        $envBuilder = new MetronomeBuilder();
+        $envBuilder = new MetronomeDoctrineMockBuilder();
         $mockEm = $envBuilder->buildEntityManager();
 
         $fixture = new MyFixture();
@@ -186,7 +252,7 @@ class MyFixtureTest extends TestCase
 }
 ```
 
-## Bypassing the Guard authentication system
+### Bypassing the Guard authentication system
 When testing Controllers, you can bypass your `GuardAuthenticator` by injecting `MetronomeLoginData` into the environment builder.   
 According to the Symfony documentation, the authenticator is defined in your `services.yaml`.   
 This service identifier is used when creating `MetronomeLoginData`.
@@ -203,7 +269,10 @@ class AdminControllerTest extends WebTestCase
     private $loginData;
     
     public function setUp() {
-        $this->testEnvBuilder = new MetronomeBuilder(static::createClient());
+        $clientBuilder = new MetronomeTestClientBuilder();
+        $clientBulder->controller(AdminController::class);
+        $this->testEnvBuilder = new MetronomeBuilder($clientBuilder->build());
+        $this->testEnvBuilder->setupController(AdminController::class);
         
         $myUser = new MyUser(); // implements UserInterface
         $this->loginData = new MetronomeLoginData($myUser, "rwslinkman.my_authenticator");
@@ -225,7 +294,7 @@ class AdminControllerTest extends WebTestCase
 ```
 
 
-## Testing forms in your Controllers
+### Testing forms in your Controllers
 Most Symfony websites have forms in their Controllers, which can easily be tested with Metronome.   
 Metronome provides 2 builders, that build a `MetronomeFormData` object.   
 This data can be injected into the `MetronomeBuilder` to mock a form.
@@ -266,32 +335,10 @@ You can use `injectForm` multiple times.
 The `FormFactory` mock will return the forms in the order they were injected.  
 There are cases where you want to write a test specified to the second form.
 To skip the first form, you can inject `MetronomeNonSubmittedForm` or `MetronomeInvalidForm` before your actual `MetronomeFormData`. 
- 
-
-## Using the Symfony Crawler
-After performing a request with the `MetronomeEnvironment`, you can crawl the result using `getLatestCrawler`.   
-Using the crawler, you can find specific content in the response.   
-This crawler updates with every request you make.   
-It directly returns the Symfony Crawler; please refer its documentation for details.   
-
-
-```php
-public function test_givenLoggedIn_whenGetLogsDashboard_thenShouldFindDashboard() {
-    $testEnv = $this->testEnvBuilder->build();
-
-    $testEnv->get("/admin/logs");
-
-    $crawler = $testEnv->getLatestCrawler();
-    $nameFilterResult = $crawler
-        ->filter('html:contains("Dashboard")')
-        ->count();
-    $this->assertGreaterThan(0, $nameFilterResult);
-}
-```
 
 Please note that this example uses a CSS selector, which requires the `symfony/css-selector` dependency.
 
-## Verifying FlashBag data
+### Verifying FlashBag data
 The `FlashBag` in the user's session can be a convenient tool for your website.   
 Metronome allows you to access the `FlashBag` through the `MetronomeEnvironment`.   
 This can help you verify the outcome of your GET or POST request even better.   
