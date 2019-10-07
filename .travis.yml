@@ -2,6 +2,6 @@ language: php
 php:
   - 7.1.9
 before_script:
-  - sudo apt install apache-ant
+  - sudo apt install ant
 script:
   - ant full-build
