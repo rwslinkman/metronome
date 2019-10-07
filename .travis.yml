@@ -2,6 +2,6 @@ language: php
 php:
   - 7.1.9
 before_script:
-  - apk add -U --no-cache apache-ant
+  - apt install apache-ant
 script:
   - ant full-build
