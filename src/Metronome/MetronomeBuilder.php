@@ -2,23 +2,23 @@
 namespace Metronome;
 
 use \InvalidArgumentException;
+use Metronome\Auth\MetronomeAuthenticationException;
+use Metronome\Auth\MetronomeLoginData;
 use Metronome\Form\MetronomeFormData;
-use Metronome\Injection\MetronomeArgument;
-use Metronome\Injection\MetronomeLoginData;
-use Metronome\Injection\MetronomeServiceArgument;
-use Metronome\Injection\MockBuilder;
-use Metronome\Injection\MockCreator;
+use Metronome\Injection\Argument\MetronomeArgument;
+use Metronome\Injection\Argument\MetronomeServiceArgument;
+use Metronome\Injection\MetronomeSession;
+use Metronome\Injection\Mocking\MetronomeDynamicMockBuilder;
+use Metronome\Injection\Mocking\MockBuilder;
+use Metronome\Injection\Mocking\MockCreator;
 use Metronome\Injection\PreparedController;
 use Metronome\Injection\ServiceInjector;
-use Metronome\Util\MetronomeAuthenticationException;
-use Metronome\Util\MetronomeSession;
 use Metronome\Util\ServiceEnum;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 
 /**
@@ -67,6 +67,11 @@ class MetronomeBuilder
         $this->injectObject($serviceName, $injectedServiceMock);
     }
 
+    public function injectDynamicMock($serviceName, MetronomeDynamicMockBuilder $mockBuilder) {
+        $injectedMock = $mockBuilder->build();
+        $this->injectObject($serviceName, $injectedMock);
+    }
+
     public function injectObject($serviceName, $anObject) {
         $this->injections[$serviceName] = $anObject;
     }
@@ -112,13 +117,13 @@ class MetronomeBuilder
      */
     public function build() {
         $this->verifyState();
+        $this->testClient->getKernel()->boot();
 
         $dmBuilder = new MetronomeDoctrineMockBuilder();
         $emMock = $dmBuilder->buildEntityManager(null);
         // Database / Doctrine mock
-        $this->testClient->getKernel()->boot();
         $this->inject(ServiceEnum::ENTITY_MANAGER, $emMock);
-        $this->inject("doctrine.orm.default_entity_manager", $emMock);
+        $this->inject(ServiceEnum::DEFAULT_ENTITY_MANAGER, $emMock);
 
         foreach($this->injections as $serviceName => $injection) {
             $this->inject($serviceName, $injection);
@@ -130,7 +135,7 @@ class MetronomeBuilder
             $this->inject(ServiceEnum::FORM_FACTORY, $formMock);
         }
         $templatingMock = MockBuilder::createTwigEnvironment();
-        $this->testClient->getContainer()->set(ServiceEnum::TWIG, $templatingMock);
+        $this->inject(ServiceEnum::TWIG, $templatingMock);
 
         // Logged in status mock
         $token = null;
@@ -154,7 +159,7 @@ class MetronomeBuilder
         }
 
         if($this->injectedSession != null) {
-            $this->inject("session", $this->injectedSession);
+            $this->inject(ServiceEnum::SESSION, $this->injectedSession);
         }
 
         if($this->preparedController != null) {
@@ -213,6 +218,7 @@ class MetronomeBuilder
             /** @noinspection PhpIncompatibleReturnTypeInspection */
             return $controllerInstance;
         } catch (\ReflectionException $e) {
+            // TODO: Improve error handling if needed
             var_dump($e);
         }
         return null;

@@ -1,6 +1,5 @@
 <?php
-namespace Metronome\Injection;
-
+namespace Metronome\Auth;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

@@ -1,7 +1,6 @@
 <?php
 namespace Metronome\Form;
 
-
 /**
  * Class MetronomeInvalidForm
  * Represents a submitted form that did not pass the FormType's constraints

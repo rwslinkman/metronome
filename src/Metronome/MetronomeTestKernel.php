@@ -3,8 +3,6 @@ namespace Metronome;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Exception;
-use Metronome\Injection\MetronomeDefinition;
-use Metronome\Injection\MockCreator;
 use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -12,7 +10,6 @@ use Symfony\Component\Config\Exception\LoaderLoadException;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 

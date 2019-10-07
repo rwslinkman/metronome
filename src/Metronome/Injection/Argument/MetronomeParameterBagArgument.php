@@ -1,5 +1,5 @@
 <?php
-namespace Metronome\Injection;
+namespace Metronome\Injection\Argument;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 

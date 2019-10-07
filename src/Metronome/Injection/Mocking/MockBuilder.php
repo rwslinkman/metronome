@@ -1,18 +1,15 @@
 <?php
-namespace Metronome\Injection;
+namespace Metronome\Injection\Mocking;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr;
 use Metronome\Form\MetronomeFormData;
 use Mockery\MockInterface;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Twig\Environment;
-use Twig_Environment;
 
 class MockBuilder
 {

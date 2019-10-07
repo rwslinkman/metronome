@@ -1,5 +1,5 @@
 <?php
-namespace Metronome\Util;
+namespace Metronome\Injection\Mocking;
 
 use Symfony\Component\HttpFoundation\Request;
 

@@ -22,17 +22,15 @@ class MetronomeTestFile extends UploadedFile
      * @param string $originalName
      * @param string $mimeType
      * @param int $size
-     * @param string $error
      * @param string $extension
      * @param string $baseName
      * @param int $modifiedDate
      * @param bool $movable
      */
-    public function __construct($originalName, $mimeType = null, $size = 0, $error = null,
-                                $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615, $movable = true)
+    public function __construct($originalName, $mimeType = null, $size = 0, $extension = ".ext", $baseName = "testFile", $modifiedDate = 1512076615, $movable = true)
     {
-        parent::__construct("/path/to/".$originalName, $originalName, $mimeType, UPLOAD_ERR_NO_FILE, true);
-        $this->pathName = "/path/to/".$originalName;
+        parent::__construct("/path/to/" . $originalName, $originalName, $mimeType, UPLOAD_ERR_NO_FILE, true);
+        $this->pathName = "/path/to/" . $originalName;
         $this->mime = $mimeType;
         $this->extension = $extension;
         $this->baseName = $baseName;
@@ -53,21 +51,22 @@ class MetronomeTestFile extends UploadedFile
 
     public function move($directory, $name = null)
     {
-        if($this->movable) {
+        if ($this->movable) {
             return $this;
         }
         return null;
     }
 
-    public function toBrowsable() {
+    public function toBrowsable()
+    {
         $file = array();
-        $file['relativePathName']   = $this->getClientOriginalName();
-        $file['pathName']           = $this->pathName;
-        $file['name']               = $this->getFilename();
-        $file['extension']          = $this->extension;
-        $file['baseName']           = $this->baseName;
-        $file['modifiedDate']       = $this->modifiedDate;
-        $file['size']               = $this->fileSize;
+        $file['relativePathName'] = $this->getClientOriginalName();
+        $file['pathName'] = $this->pathName;
+        $file['name'] = $this->getFilename();
+        $file['extension'] = $this->extension;
+        $file['baseName'] = $this->baseName;
+        $file['modifiedDate'] = $this->modifiedDate;
+        $file['size'] = $this->fileSize;
         return $file;
     }
 

@@ -1,5 +1,5 @@
 <?php
-namespace Metronome\Injection;
+namespace Metronome\Auth;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 

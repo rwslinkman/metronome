@@ -1,11 +1,10 @@
 <?php
 namespace Metronome;
 
-
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Metronome\Injection\MockBuilder;
-use Metronome\Injection\MockCreator;
+use Metronome\Injection\Mocking\MockBuilder;
+use Metronome\Injection\Mocking\MockCreator;
 use Metronome\Injection\RepoInjector;
 use Mockery\MockInterface;
 

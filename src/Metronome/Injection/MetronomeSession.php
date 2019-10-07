@@ -1,5 +1,5 @@
 <?php
-namespace Metronome\Util;
+namespace Metronome\Injection;
 
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
@@ -7,8 +7,6 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
-use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 class MetronomeSession implements SessionInterface
 {
@@ -200,6 +198,7 @@ class MetronomeSession implements SessionInterface
     public function remove($name)
     {
         unset($this->attributes[$name]);
+        return null;
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php
-namespace Metronome\Request;
+namespace Metronome\Injection\Mocking;
 
-use Metronome\Injection\MockCreator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 

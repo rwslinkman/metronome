@@ -2,11 +2,10 @@
 namespace Metronome;
 
 use InvalidArgumentException;
-use Metronome\Injection\MockCreator;
+use Metronome\Injection\Mocking\MockCreator;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\BrowserKit\Cookie;
 
 /**
  * class MetronomeEnvironment
@@ -161,15 +160,13 @@ class MetronomeEnvironment
      * @param string $body
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    private function request($method, $uri, $files = array(), $headers = array(), $body = null, $sessionMap = array())
+    private function request($method, $uri, $files = array(), $headers = array(), $body = null)
     {
         // Prepare JSON body
         $content = null;
         if ($body != null) {
             $content = json_encode($body);
         }
-
-//        $this->prepareSession($sessionMap);
 
         $this->latestCrawler = $this->client->request($method, $uri, array(), $files, $headers, $content);
         // TODO: Analyze response and warn for errors, flashbag messages, etc.
@@ -189,15 +186,5 @@ class MetronomeEnvironment
                 throw new InvalidArgumentException($errorStr);
             }
         }
-    }
-
-    private function prepareSession($sessionMap) {
-        $session = $this->client->getContainer()->get('session');
-        $session->start();
-        foreach($sessionMap as $sessionKey => $sessionValue) {
-            $session->set($sessionKey, $sessionValue);
-        }
-        $session->save();
-        $this->client->getCookieJar()->set(new Cookie($session->getName(), $session->getId()));
     }
 }

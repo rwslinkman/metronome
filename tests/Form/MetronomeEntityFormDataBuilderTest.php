@@ -1,9 +1,9 @@
 <?php
 namespace Metronome\Tests\Form;
 
+use Metronome\Auth\MetronomeUser;
 use Metronome\Form\MetronomeEntityFormDataBuilder;
 use Metronome\Form\MetronomeFormData;
-use Metronome\Injection\MetronomeUser;
 use Metronome\Tests\Util\TestEntity;
 use PHPUnit\Framework\TestCase;
 

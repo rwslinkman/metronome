@@ -1,7 +1,5 @@
 <?php
-namespace Metronome\Util;
-
-use Metronome\File\FileBrowser;
+namespace Metronome\File;
 
 /**
  * Class TestFileBrowser

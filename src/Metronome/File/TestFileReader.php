@@ -1,7 +1,5 @@
 <?php
-namespace Metronome\Util;
-
-use Metronome\File\FileReader;
+namespace Metronome\File;
 
 /**
  * Class TestFileReader

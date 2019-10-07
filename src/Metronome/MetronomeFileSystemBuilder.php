@@ -1,9 +1,9 @@
 <?php
 namespace Metronome;
 
-use Metronome\Injection\MockCreator;
-use Metronome\Util\MetronomeTestFile;
-use Metronome\Util\TestFileBrowser;
+use Metronome\File\MetronomeTestFile;
+use Metronome\File\TestFileBrowser;
+use Metronome\Injection\Mocking\MockCreator;
 use Symfony\Component\Filesystem\Filesystem;
 
 class MetronomeFileSystemBuilder

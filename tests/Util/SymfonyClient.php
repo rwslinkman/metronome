@@ -1,7 +1,7 @@
 <?php
 namespace Metronome\Tests\Util;
 
-use Metronome\Injection\MockCreator;
+use Metronome\Injection\Mocking\MockCreator;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 abstract class SymfonyClient
