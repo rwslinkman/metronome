@@ -2,7 +2,7 @@
 namespace Metronome;
 
 use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Metronome\Injection\Mocking\MockBuilder;
 use Metronome\Injection\Mocking\MockCreator;
 use Metronome\Injection\RepoInjector;
@@ -80,7 +80,7 @@ class MetronomeDoctrineMockBuilder
         $mockEM = MockBuilder::createMockEntityManager(null, null, null, null,
             $this->entityManagerLoad, $this->entityManagerLoadAll, $entityClass);
         //
-        $mockMR = MockCreator::mock('Doctrine\Common\Persistence\ManagerRegistry', array(
+        $mockMR = MockCreator::mock('Doctrine\Persistence\ManagerRegistry', array(
             "getManagerForClass" => $mockEM,
         ));
         return $mockMR;
