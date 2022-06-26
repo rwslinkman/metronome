@@ -2,13 +2,14 @@
 namespace Metronome\Injection\Mocking;
 
 use Metronome\Tests\Util\DummyClass;
+use Mockery\Exception\BadMethodCallException;
 use PHPUnit\Framework\TestCase;
 
 class MetronomeDynamicMockBuilderTest extends TestCase
 {
     private $builder;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->builder = new MetronomeDynamicMockBuilder(DummyClass::class);
@@ -19,11 +20,13 @@ class MetronomeDynamicMockBuilderTest extends TestCase
         $this->assertNotNull($result);
     }
 
-    /** @expectedException \Mockery\Exception\BadMethodCallException */
     public function test_givenNoMethods_whenBuild_thenShouldThrowException() {
+        $this->expectException(BadMethodCallException::class);
+
         /** @var DummyClass $mock */
         $mock = $this->builder->build();
 
+        /** @noinspection PhpExpressionResultUnusedInspection */
         $mock->giveSomeInteger();
     }
 
@@ -46,12 +49,14 @@ class MetronomeDynamicMockBuilderTest extends TestCase
         $this->assertNotEquals(DummyClass::SOME_INTEGER, $result);
     }
 
-    /** @expectedException \Mockery\Exception\BadMethodCallException */
     public function test_givenIntegerMethodMocked_whenCallNonMocked_thenShouldThrowException() {
+        $this->expectException(BadMethodCallException::class);
+
         $this->builder->method("giveSomeInteger", 42);
         /** @var DummyClass $mock */
         $mock = $this->builder->build();
 
+        /** @noinspection PhpExpressionResultUnusedInspection */
         $mock->giveSomeString();
     }
 

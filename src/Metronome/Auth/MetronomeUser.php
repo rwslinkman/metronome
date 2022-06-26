@@ -9,6 +9,7 @@ class MetronomeUser implements UserInterface
     private $password;
     private $salt;
     private $roles;
+    private $userId;
 
     /**
      * MetronomeUser constructor.
@@ -17,12 +18,13 @@ class MetronomeUser implements UserInterface
      * @param string $salt
      * @param array $roles
      */
-    public function __construct($username = "", $password = "", $salt = "", $roles = array())
+    public function __construct($username = "", $password = "", $salt = "", $roles = array(), $userId = "")
     {
         $this->username = $username;
         $this->password = $password;
         $this->salt = $salt;
         $this->roles = $roles;
+        $this->userId = $userId;
     }
 
     /**
@@ -41,7 +43,7 @@ class MetronomeUser implements UserInterface
      *
      * @return (Role|string)[] The user roles
      */
-    public function getRoles()
+    public function getRoles(): array
     {
         return $this->roles;
     }
@@ -90,5 +92,22 @@ class MetronomeUser implements UserInterface
     public function eraseCredentials()
     {
         $this->password = "";
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserIdentifier(): string
+    {
+        return $this->username;
+    }
+
+    /**
+     * @param string $userId
+     * @return void
+     */
+    public function setUserIdentifier(string $userId): void
+    {
+        $this->userId = $userId;
     }
 }

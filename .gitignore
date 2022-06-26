@@ -42,3 +42,5 @@
 /vendor/
 .idea
 cache.properties
+.phpunit.result.cache
+=8.0

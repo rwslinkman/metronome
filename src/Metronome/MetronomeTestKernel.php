@@ -15,7 +15,7 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class MetronomeTestKernel extends Kernel
 {
-    use MicroKernelTrait, TestKernelTrait;
+    use MicroKernelTrait;
 
     const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
@@ -33,12 +33,13 @@ class MetronomeTestKernel extends Kernel
         ), $additionalBundles);
         $this->definitions = $definitions;
     }
-    public function registerBundles()
+
+    public function registerBundles(): iterable
     {
         return $this->additionalBundles;
     }
 
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return $this->projectDir().'/var/cache/'.spl_object_hash($this);
     }

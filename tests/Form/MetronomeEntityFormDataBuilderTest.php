@@ -12,7 +12,7 @@ class MetronomeEntityFormDataBuilderTest extends TestCase
     /** @var MetronomeEntityFormDataBuilder */
     private $dataBuilder;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->dataBuilder = new MetronomeEntityFormDataBuilder();

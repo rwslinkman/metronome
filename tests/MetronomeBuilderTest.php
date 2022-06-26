@@ -9,7 +9,7 @@ class MetronomeBuilderTest extends TestCase
     /** @var MetronomeBuilder */
     private $builder;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $client = new MetronomeTestClientBuilder();

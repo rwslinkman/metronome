@@ -31,7 +31,7 @@ class MetronomeSession implements SessionInterface
      *
      * @throws \RuntimeException if session fails to start
      */
-    public function start()
+    public function start(): bool
     {
         $this->started = true;
         return true;
@@ -42,7 +42,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return string The session ID
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -62,7 +62,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return mixed The session name
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -90,7 +90,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return bool True if session invalidated, false if error
      */
-    public function invalidate($lifetime = null)
+    public function invalidate($lifetime = null): bool
     {
         $this->attributes = array();
         return true;
@@ -108,7 +108,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return bool True if session migrated, false if error
      */
-    public function migrate($destroy = false, $lifetime = null)
+    public function migrate($destroy = false, $lifetime = null): bool
     {
         return false;
     }
@@ -132,7 +132,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return bool true if the attribute is defined, false otherwise
      */
-    public function has($name)
+    public function has($name): bool
     {
         return array_key_exists($name, $this->attributes);
     }
@@ -145,7 +145,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return mixed
      */
-    public function get($name, $default = null)
+    public function get($name, $default = null): mixed
     {
         if(array_key_exists($name, $this->attributes)) {
             $value = $this->attributes[$name];
@@ -173,7 +173,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return array Attributes
      */
-    public function all()
+    public function all(): array
     {
         return $this->attributes;
     }
@@ -195,7 +195,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return mixed The removed value or null when it does not exist
      */
-    public function remove($name)
+    public function remove($name): mixed
     {
         unset($this->attributes[$name]);
         return null;
@@ -214,7 +214,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return bool
      */
-    public function isStarted()
+    public function isStarted(): bool
     {
         return $this->started;
     }
@@ -234,7 +234,7 @@ class MetronomeSession implements SessionInterface
      *
      * @return SessionBagInterface
      */
-    public function getBag($name)
+    public function getBag($name): SessionBagInterface
     {
         return new AttributeBag();
     }
@@ -244,9 +244,9 @@ class MetronomeSession implements SessionInterface
      *
      * @return MetadataBag
      */
-    public function getMetadataBag()
+    public function getMetadataBag(): MetadataBag
     {
-        return null;
+        return new MetadataBag();
     }
 
     /**

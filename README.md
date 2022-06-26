@@ -29,7 +29,7 @@ composer require-dev rwslinkman/metronome
 ```
 
 Metronome is not needed in the production environment, since it is a test utility.   
-The latest version is `2.0.0`.         
+The latest version is `3.0.0`.         
 Older versions may work for Symfony 3 projects, but this may prove difficult and is not supported.   
 For bleeding edge development, point to the `dev-develop` or `dev-master` version.
 

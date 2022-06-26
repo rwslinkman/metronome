@@ -7,7 +7,7 @@ class MetronomeSessionTest extends TestCase
 {
     private $session;
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         $this->session = new MetronomeSession();
     }
