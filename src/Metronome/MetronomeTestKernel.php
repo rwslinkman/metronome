@@ -3,15 +3,12 @@ namespace Metronome;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Exception;
-use RDV\SymfonyContainerMocks\DependencyInjection\TestKernelTrait;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\Config\Exception\LoaderLoadException;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class MetronomeTestKernel extends Kernel
 {
@@ -42,23 +39,6 @@ class MetronomeTestKernel extends Kernel
     public function getCacheDir(): string
     {
         return $this->projectDir().'/var/cache/'.spl_object_hash($this);
-    }
-
-    /**
-     * Add or import routes into your application.
-     *
-     *     $routes->import('config/routing.yml');
-     *     $routes->add('/admin', 'App\Controller\AdminController::dashboard', 'admin_dashboard');
-     *
-     * @param RouteCollectionBuilder $routes
-     * @throws LoaderLoadException
-     */
-    protected function configureRoutes(RouteCollectionBuilder $routes)
-    {
-        $confDir = $this->projectDir().'/config';
-
-        $routes->import($confDir.'/{routes}/*'.self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir.'/{routes}'.self::CONFIG_EXTS, '/', 'glob');
     }
 
     /**
