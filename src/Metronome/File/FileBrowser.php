@@ -19,13 +19,13 @@ class FileBrowser
      * @param string $dirName
      * @return array
      */
-    public function getFilesInDirectory($dirName) {
+    public function getFilesInDirectory($dirName): array {
         $finder = new Finder();
         $cursor = $finder->files()->in($dirName);
         return $this->cursorToArray($cursor);
     }
 
-    public function getDirectories($parent) {
+    public function getDirectories($parent): array {
         $finder = new Finder();
         $cursor = $finder->directories()->in($parent);
         return $this->cursorToArray($cursor);
@@ -35,7 +35,7 @@ class FileBrowser
      * @param SplFileInfo $fileInfo
      * @return array
      */
-    private function splToArray(SplFileInfo $fileInfo) {
+    private function splToArray(SplFileInfo $fileInfo): array {
         $file = array();
         $file[self::FILE_PROP_RELATIVE_PATH_NAME]   = $fileInfo->getRelativePathname();
         $file[self::FILE_PROP_PATH_NAME]            = $fileInfo->getPathname();
@@ -47,12 +47,12 @@ class FileBrowser
      * @param Finder $cursor
      * @return array
      */
-    private function cursorToArray($cursor)
+    private function cursorToArray($cursor): array
     {
         $result = array();
         /** @var SplFileInfo $file */
         foreach ($cursor->getIterator() as $file) {
-            array_push($result, $this->splToArray($file));
+            $result[] = $this->splToArray($file);
         }
         return $result;
     }

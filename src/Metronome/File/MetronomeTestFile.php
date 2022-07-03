@@ -1,6 +1,7 @@
 <?php
 namespace Metronome\File;
 
+use Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -39,25 +40,28 @@ class MetronomeTestFile extends UploadedFile
         $this->movable = $movable;
     }
 
-    public function getPathname()
+    public function getPathname(): string
     {
         return $this->pathName;
     }
 
-    public function getMimeType()
+    public function getMimeType(): null|string
     {
         return $this->mime;
     }
 
-    public function move($directory, $name = null)
+    /**
+     * @throws Exception
+     */
+    public function move($directory, $name = null): self
     {
         if ($this->movable) {
             return $this;
         }
-        return null;
+        throw new Exception("Not movable");
     }
 
-    public function toBrowsable()
+    public function toBrowsable(): array
     {
         $file = array();
         $file['relativePathName'] = $this->getClientOriginalName();
@@ -73,7 +77,7 @@ class MetronomeTestFile extends UploadedFile
     /**
      * @return string
      */
-    public function getExtension()
+    public function getExtension(): string
     {
         return $this->extension;
     }
@@ -97,7 +101,7 @@ class MetronomeTestFile extends UploadedFile
     /**
      * @return int
      */
-    public function getModifiedDate()
+    public function getModifiedDate(): int
     {
         return $this->modifiedDate;
     }
@@ -113,7 +117,7 @@ class MetronomeTestFile extends UploadedFile
     /**
      * @return int
      */
-    public function getFileSize()
+    public function getFileSize(): int
     {
         return $this->fileSize;
     }

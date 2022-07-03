@@ -10,12 +10,12 @@ class TestFileBrowser extends FileBrowser
     private $filesInDir = array();
     private $dirs = array();
 
-    public function getFilesInDirectory($dirName)
+    public function getFilesInDirectory($dirName): array
     {
         return $this->filesInDir;
     }
 
-    public function getDirectories($parent)
+    public function getDirectories($parent): array
     {
         return $this->dirs;
     }
