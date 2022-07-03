@@ -1,6 +1,7 @@
 <?php
-namespace Metronome\Injection;
+namespace Metronome\Tests\Injection;
 
+use Metronome\Injection\MetronomeSession;
 use PHPUnit\Framework\TestCase;
 
 class MetronomeSessionTest extends TestCase

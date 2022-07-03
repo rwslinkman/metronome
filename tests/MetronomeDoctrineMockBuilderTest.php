@@ -1,6 +1,7 @@
 <?php
-namespace Metronome;
+namespace Metronome\Tests;
 
+use Metronome\MetronomeDoctrineMockBuilder;
 use PHPUnit\Framework\TestCase;
 
 class MetronomeDoctrineMockBuilderTest extends TestCase

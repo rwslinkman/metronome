@@ -18,8 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
-
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 /**
  * Class MetronomeBuilder
@@ -141,7 +140,7 @@ class MetronomeBuilder
         $token = null;
         if($this->loginData != null) {
             $mockUser = $this->loginData->getUser();
-            $token = new PostAuthenticationGuardToken($mockUser, "dev", $mockUser->getRoles());
+            $token = new PostAuthenticationToken($mockUser, "dev", $mockUser->getRoles());
             foreach ($this->loginData->getTokenAttributes() as $attribute => $value) {
                 $token->setAttribute($attribute, $value);
             }

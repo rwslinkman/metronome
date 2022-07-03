@@ -1,7 +1,8 @@
 <?php
-namespace Metronome;
+namespace Metronome\Tests;
 
 use Metronome\Injection\MetronomeDefinition;
+use Metronome\MetronomeTestClientBuilder;
 use PHPUnit\Framework\TestCase;
 
 class MetronomeTestClientBuilderTest extends TestCase

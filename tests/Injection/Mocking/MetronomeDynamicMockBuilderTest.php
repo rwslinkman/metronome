@@ -1,6 +1,7 @@
 <?php
-namespace Metronome\Injection\Mocking;
+namespace Metronome\Tests\Injection\Mocking;
 
+use Metronome\Injection\Mocking\MetronomeDynamicMockBuilder;
 use Metronome\Tests\Util\DummyClass;
 use Mockery\Exception\BadMethodCallException;
 use PHPUnit\Framework\TestCase;
