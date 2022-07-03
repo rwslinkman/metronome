@@ -6,12 +6,10 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr;
 use Metronome\Form\MetronomeFormData;
 use Mockery\MockInterface;
-use Symfony\Bundle\TwigBundle\TwigEngine;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 class MockBuilder
 {
@@ -72,10 +70,10 @@ class MockBuilder
     }
 
     /**
-     * @param PostAuthenticationGuardToken $token
-     * @return MockInterface|AbstractGuardAuthenticator
+     * @param PostAuthenticationToken $token
+     * @return MockInterface|AbstractAuthenticator
      */
-    public static function createMockUserProvider(PostAuthenticationGuardToken $token) {
+    public static function createMockUserProvider(PostAuthenticationToken $token) {
         $userProviderMock = MockCreator::mock('\Metronome\Injection\MetronomeAuthenticator',
             array(
                 'getUser' => $token->getUser(),
@@ -109,7 +107,7 @@ class MockBuilder
         /** @var MetronomeFormData $injectedForm */
         foreach($injectedForms as $injectedForm) {
             $mockForm = self::createFormMock($injectedForm->isValid(), $injectedForm->getSubmittedData(), $injectedForm->getErrors());
-            array_push($mockForms, $mockForm);
+            $mockForms[] = $mockForm;
         }
 
         $builderMock = MockCreator::mock('\Symfony\Component\Form\FormBuilderInterface', array(
@@ -142,7 +140,7 @@ class MockBuilder
         return $twigMock;
     }
 
-    public static function createTokenStorageMock(PostAuthenticationGuardToken $token = null) {
+    public static function createTokenStorageMock(PostAuthenticationToken $token = null) {
         $storageMock = MockCreator::mock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage', array(
             'getToken' => $token,
             'setToken' => null
