@@ -22,7 +22,7 @@ class RequestStub extends Request
     }
 
 
-    public function getPathInfo()
+    public function getPathInfo(): string
     {
         return $this->mockPath;
     }

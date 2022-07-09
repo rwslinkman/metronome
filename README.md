@@ -1,4 +1,7 @@
 # Metronome ![](https://travis-ci.com/rwslinkman/metronome.svg?branch=master)
+**This project is deprecated and should no longer be used.**   
+**Please read the DEPRECATION NOTICE for further information.** 
+
 > Metronome is a lightweight test utility for Symfony 3 and Symfony 4 (PHP) applications.   
 > It provides a steady base for easy mocking and injection of the Symfony Container.     
 > Let Metronome help you orchestrate  the Symfony in your hands!      
@@ -20,6 +23,21 @@ Using the Metronome you can:
 - Inject `MetronomeLoginData` to bypass your `GuardAuthenticator` protection
 - Mock `Symfony Forms`  using the `MetronomeFormDataBuilder` and `MetronomeEntityFormDataBuilder`
 - Verify the contents of the Symfony `FlashBag`
+
+## DEPRECATION NOTICE
+**This project is no longer in active development.**   
+**Initially, the project was created in a time when Symfony did not fully support dependency injection for testing.**   
+**Also, it was difficult to create mocks that could be used in the Symfony kernel.**   
+**Testing your Symfony Controllers was pretty difficult at the time. This is no longer the case.**   
+
+**Over the years, both Symfony and PHPUnit have seen great improvements in these parts.**   
+**Metronome is therefor becoming more and more obsolete.**   
+**It becomes more of a burden than a benefit for projects.**   
+**Using the improved dependency injection system, testing Symfony Controllers can be done well without Metronome.**   
+
+**In case you want to migrate away from Metronome, take a look at mocking in PHPUnit.**   
+**These mocks can easily be passed in Controllers' constructors when testing.**   
+
 
 ## Installation
 You can install Metronome using `composer` to get the package from Packagist.
